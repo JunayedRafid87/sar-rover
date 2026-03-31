@@ -963,10 +963,20 @@
 <section id="methodology" class="reveal">
     <div class="container">
         <div class="section-header">
-            <h2>Mapping Methodology</h2>
-            <p>How each approach captures and reconstructs the environment</p>
+            <h2>System Architecture & Methodology</h2>
+            <p>Overall system design and how each approach captures and reconstructs the environment</p>
         </div>
+
+        <!-- System Overview Diagram -->
+        <div style="margin-bottom: 50px;">
+            <h3 style="text-align: center; color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.2rem;">📊 Overall System Flowchart</h3>
+            <div class="proteus-img-card" style="max-width: 900px; margin: 0 auto;">
+                <img loading="lazy" src="diagrams/system_overview.png" alt="System Overview Flowchart" style="width: 100%; border-radius: 12px;">
+            </div>
+        </div>
+
         <div class="method-grid">
+            <!-- Approach 1 -->
             <div class="method-card">
                 <div class="method-num">01</div>
                 <h3 style="color: var(--accent-green);">LiDAR Mapping</h3>
@@ -978,7 +988,13 @@
                     <li>2D occupancy grid for path planning</li>
                     <li>Lowest power draw (~32W)</li>
                 </ul>
+                <div class="proteus-img-card" style="margin-top: 20px;">
+                    <img loading="lazy" src="diagrams/approach_1_flow.png" alt="Approach 1 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <div class="img-label">🔄 LiDAR Pipeline — ICP Algorithm</div>
+                </div>
             </div>
+
+            <!-- Approach 2 -->
             <div class="method-card">
                 <div class="method-num">02</div>
                 <h3 style="color: var(--accent-orange);">RGB-D Mapping</h3>
@@ -990,7 +1006,13 @@
                     <li>~100K+ points per frame</li>
                     <li>Consensus voxel accumulation</li>
                 </ul>
+                <div class="proteus-img-card" style="margin-top: 20px;">
+                    <img loading="lazy" src="diagrams/approach_2_flow.png" alt="Approach 2 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <div class="img-label">🔄 RGB-D Pipeline — SLAM & Depth Fusion</div>
+                </div>
             </div>
+
+            <!-- Approach 3 -->
             <div class="method-card">
                 <div class="method-num">03</div>
                 <h3 style="color: var(--accent-purple);">Hybrid Fusion</h3>
@@ -1002,6 +1024,10 @@
                     <li>RTAB-Map sensor fusion (Grid/Sensor=2)</li>
                     <li>Loop closure for drift correction</li>
                 </ul>
+                <div class="proteus-img-card" style="margin-top: 20px;">
+                    <img loading="lazy" src="diagrams/approach_3_flow.png" alt="Approach 3 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <div class="img-label">🔄 Hybrid Pipeline — RTAB-MAP Multisensor Fusion</div>
+                </div>
             </div>
         </div>
     </div>
