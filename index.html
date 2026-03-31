@@ -618,6 +618,63 @@
             color: var(--accent-cyan);
         }
 
+        /* ─── Team & ATC Section ─── */
+        .team-section {
+            padding: 80px 0 40px; border-top: 1px solid var(--border-color);
+        }
+        .team-logos {
+            display: flex; justify-content: center; align-items: center; gap: 40px;
+            margin-bottom: 32px;
+        }
+        .team-logos img {
+            height: 80px; object-fit: contain;
+            filter: brightness(0) invert(1); opacity: 0.85;
+        }
+        .team-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+            margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto;
+        }
+        .team-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 32px;
+            transition: all 0.3s;
+        }
+        .team-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border-color: rgba(6, 182, 212, 0.2);
+        }
+        .team-card h3 {
+            font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;
+            color: var(--accent-cyan); letter-spacing: 1px; text-transform: uppercase;
+        }
+        .member-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid var(--border-color);
+        }
+        .member-row:last-child { border-bottom: none; }
+        .member-name { font-weight: 600; color: var(--text-primary); font-size: 0.95rem; }
+        .member-id { color: var(--text-muted); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; }
+        .atc-member {
+            padding: 14px 0; border-bottom: 1px solid var(--border-color);
+        }
+        .atc-member:last-child { border-bottom: none; }
+        .atc-name { font-weight: 700; color: var(--text-primary); font-size: 1rem; }
+        .atc-title { color: var(--accent-cyan); font-size: 0.8rem; font-weight: 600; margin-top: 2px; }
+        .atc-dept { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+        .project-tag {
+            display: inline-block; background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            padding: 6px 20px; border-radius: 20px;
+            font-size: 0.85rem; font-weight: 600; color: var(--accent-cyan);
+            margin-top: 12px; letter-spacing: 1px;
+        }
+        @media (max-width: 768px) {
+            .team-grid { grid-template-columns: 1fr; }
+            .team-logos { gap: 20px; }
+            .team-logos img { height: 55px; }
+        }
+
         /* ─── Responsive ─── */
         @media (max-width: 768px) {
             .method-grid { grid-template-columns: 1fr; }
@@ -675,7 +732,7 @@
     <canvas id="particles-canvas"></canvas>
     <div class="container">
         <div class="hero-badge">BSRM School of Engineering · BRAC University</div>
-        <h1>3D Mapping for Search & Rescue</h1>
+        <h1>3D Spatial Mapping System for Collapsed Structures with Integrated Survivor Localization and Hazard Detection</h1>
         <p>Comparing LiDAR, RGB-D, and Hybrid sensor fusion approaches for autonomous SAR rover navigation in collapsed structures.</p>
         <div class="hero-stats">
             <div class="hero-stat">
@@ -1114,11 +1171,71 @@
     </div>
 </section>
 
+<!-- ─── Team & ATC Section ─── -->
+<section class="team-section reveal">
+    <div class="container">
+        <div class="team-logos">
+            <img loading="lazy" src="bracu_logo.png" alt="BRAC University Logo">
+            <img loading="lazy" src="bsrm_logo.png" alt="BSRM School of Engineering Logo">
+        </div>
+        <div class="section-header">
+            <h2>Project Team</h2>
+            <p>FYDP-P | ATC 2 | Group 2</p>
+            <div class="project-tag">BSRM School of Engineering · BRAC University</div>
+        </div>
+
+        <div class="team-grid">
+            <div class="team-card">
+                <h3>👥 Group Members</h3>
+                <div class="member-row">
+                    <span class="member-name">Shamim Shahed Mahin</span>
+                    <span class="member-id">23221146</span>
+                </div>
+                <div class="member-row">
+                    <span class="member-name">Adrija Khastagir</span>
+                    <span class="member-id">22221018</span>
+                </div>
+                <div class="member-row">
+                    <span class="member-name">Junayed Rafid</span>
+                    <span class="member-id">22321029</span>
+                </div>
+                <div class="member-row">
+                    <span class="member-name">Anika Azmain</span>
+                    <span class="member-id">22321067</span>
+                </div>
+                <div class="member-row">
+                    <span class="member-name">Trina Biswas</span>
+                    <span class="member-id">22221035</span>
+                </div>
+            </div>
+
+            <div class="team-card">
+                <h3>🎓 ATC Panel</h3>
+                <div class="atc-member">
+                    <div class="atc-name">Dr. Mirza Rasheduzzaman</div>
+                    <div class="atc-title">Associate Professor</div>
+                    <div class="atc-dept">Dept. of EEE, BRAC University</div>
+                </div>
+                <div class="atc-member">
+                    <div class="atc-name">Dr. Md Arif Billah</div>
+                    <div class="atc-title">Assistant Professor</div>
+                    <div class="atc-dept">Dept. of EEE, BRAC University</div>
+                </div>
+                <div class="atc-member">
+                    <div class="atc-name">Sk Tahmed Salim Rafid</div>
+                    <div class="atc-title">Lecturer</div>
+                    <div class="atc-dept">Dept. of EEE, BRAC University</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ─── Footer ─── -->
 <footer>
     <div class="container">
         <div class="footer-brand">FYDP D — Group 2 · BRAC University</div>
-        <p>Search & Rescue Rover — Complete System Dashboard</p>
+        <p>3D Spatial Mapping System for Collapsed Structures</p>
         <p style="margin-top: 8px;">BSRM School of Engineering, BRAC University · 2025–2026</p>
     </div>
 </footer>
