@@ -791,6 +791,10 @@
 
         /* 3D viewer light mode */
         body.light-mode .viewer-canvas { background: #f0f0f0; }
+
+        /* Performance: GPU acceleration for hover effects */
+        .comparison-table tr { will-change: transform; }
+        .method-card, .perf-card, .team-card { will-change: transform; }
         /* Light mode diagram switching - must be last */
         .diagram-light { display: none !important; }
         body.light-mode .diagram-dark { display: none !important; }
@@ -1579,6 +1583,12 @@ function toggleAutoRotate() {
 
 function animate() {
     requestAnimationFrame(animate);
+    // Skip rendering when viewer is off-screen
+    var canvas = document.getElementById('viewer3d');
+    if (canvas) {
+        var rect = canvas.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+    }
     if (autoRotate) { rotY += 0.005; updateCamera(); }
     renderer.render(scene, camera);
 }
@@ -1960,6 +1970,11 @@ function initParticles() {
     }
 
     function draw() {
+        requestAnimationFrame(draw);
+        // Skip when hero is off-screen
+        var rect = canvas.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach((p, i) => {
             p.x += p.vx; p.y += p.vy;
@@ -1973,21 +1988,22 @@ function initParticles() {
             ctx.fillStyle = `rgba(59, 130, 246, ${p.a})`;
             ctx.fill();
 
-            // Draw connections
+            // Draw connections (skip squared distance calc if far apart)
             for (let j = i + 1; j < particles.length; j++) {
                 const dx = p.x - particles[j].x;
+                if (dx > 100 || dx < -100) continue;
                 const dy = p.y - particles[j].y;
+                if (dy > 100 || dy < -100) continue;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 120) {
+                if (dist < 100) {
                     ctx.beginPath();
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.08 * (1 - dist / 120)})`;
+                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.06 * (1 - dist / 100)})`;
                     ctx.stroke();
                 }
             }
         });
-        requestAnimationFrame(draw);
     }
     draw();
 }
@@ -2068,7 +2084,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 <script>
 // Scroll Progress
-window.addEventListener('scroll',function(){var s=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-window.innerHeight;document.getElementById('scroll-progress').style.width=(s/h*100)+'%';});
+var _sT;window.addEventListener('scroll',function(){if(_sT)return;_sT=requestAnimationFrame(function(){var s=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-window.innerHeight;document.getElementById('scroll-progress').style.width=(s/h*100)+'%';_sT=0})},{passive:true});
 // Typing Effect
 (function(){var h1=document.querySelector('.hero h1');if(!h1)return;var txt=h1.textContent;h1.innerHTML='';var i=0;function t(){if(i<txt.length){h1.textContent=txt.substring(0,i+1);i++;setTimeout(t,25)}}setTimeout(t,800)})();
 // Theme Toggle
