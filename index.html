@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAR Rover 3D Mapping — FYDP D Group 2 | BRAC University</title>
+    <meta name="description" content="Interactive 3D mapping comparison: LiDAR, RGB-D, and Hybrid sensor fusion approaches for Search & Rescue rover navigation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a1f35;
+            --bg-card-hover: #222845;
+            --text-primary: #f0f4ff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-orange: #f97316;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+            --gradient-lidar: linear-gradient(135deg, #22c55e, #06b6d4);
+            --gradient-rgbd: linear-gradient(135deg, #f97316, #ec4899);
+            --gradient-hybrid: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --glow-blue: 0 0 30px rgba(59, 130, 246, 0.3);
+            --glow-purple: 0 0 30px rgba(139, 92, 246, 0.3);
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ─── Scrollbar ─── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-card); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+        /* ─── Background Effects ─── */
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        .bg-glow {
+            position: fixed; z-index: 0; pointer-events: none;
+            width: 600px; height: 600px; border-radius: 50%;
+            filter: blur(120px); opacity: 0.08;
+        }
+        .bg-glow-1 { top: -200px; left: -100px; background: var(--accent-blue); }
+        .bg-glow-2 { top: 40%; right: -200px; background: var(--accent-purple); }
+        .bg-glow-3 { bottom: -100px; left: 30%; background: var(--accent-pink); }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+        /* ─── Navigation ─── */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(10, 14, 26, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+        }
+        nav .container {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-brand {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 700; font-size: 1.1rem;
+        }
+        .nav-brand .badge {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+        }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-links a {
+            color: var(--text-secondary); text-decoration: none;
+            padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+
+        /* ─── Hero ─── */
+        .hero {
+            padding: 100px 0 60px; text-align: center;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--accent-purple); font-size: 0.8rem; font-weight: 600;
+            padding: 6px 18px; border-radius: 100px; margin-bottom: 24px;
+            letter-spacing: 1.5px; text-transform: uppercase;
+        }
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900; line-height: 1.1; margin-bottom: 20px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            color: var(--text-secondary); font-size: 1.15rem;
+            max-width: 700px; margin: 0 auto 40px;
+        }
+        .hero-stats {
+            display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+        }
+        .hero-stat {
+            text-align: center;
+        }
+        .hero-stat .value {
+            font-size: 2.2rem; font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-stat .label {
+            color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* ─── Section ─── */
+        section { padding: 80px 0; }
+        .section-header {
+            text-align: center; margin-bottom: 48px;
+        }
+        .section-header h2 {
+            font-size: 2rem; font-weight: 800; margin-bottom: 12px;
+        }
+        .section-header p { color: var(--text-secondary); font-size: 1.05rem; }
+
+        /* ─── Approach Tabs ─── */
+        .approach-tabs {
+            display: flex; justify-content: center; gap: 12px; margin-bottom: 36px; flex-wrap: wrap;
+        }
+        .approach-tab {
+            padding: 14px 28px; border-radius: 12px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            color: var(--text-secondary); font-weight: 600; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .approach-tab::before {
+            content: ''; position: absolute; inset: 0;
+            border-radius: 12px; padding: 2px;
+            background: transparent; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor; -webkit-mask-composite: xor; opacity: 0; transition: opacity 0.3s;
+        }
+        .approach-tab.active, .approach-tab:hover {
+            color: var(--text-primary); background: var(--bg-card-hover);
+            transform: translateY(-2px); box-shadow: var(--glow-blue);
+        }
+        .approach-tab[data-approach="1"].active { box-shadow: 0 0 30px rgba(34, 197, 94, 0.25); border-color: rgba(34, 197, 94, 0.4); }
+        .approach-tab[data-approach="2"].active { box-shadow: 0 0 30px rgba(249, 115, 22, 0.25); border-color: rgba(249, 115, 22, 0.4); }
+        .approach-tab[data-approach="3"].active { box-shadow: 0 0 30px rgba(139, 92, 246, 0.25); border-color: rgba(139, 92, 246, 0.4); }
+        .approach-tab .tab-icon { font-size: 1.2rem; margin-right: 8px; }
+
+        /* ─── 3D Viewer ─── */
+        .viewer-container {
+            position: relative; border-radius: var(--radius);
+            overflow: hidden; border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .viewer-canvas {
+            width: 100%; height: 550px; display: block;
+            cursor: grab;
+        }
+        .viewer-canvas:active { cursor: grabbing; }
+        .viewer-overlay {
+            position: absolute; top: 20px; left: 20px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .viewer-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);
+            padding: 8px 14px; border-radius: 8px;
+            font-size: 0.82rem; font-weight: 600; color: var(--text-primary);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .viewer-tag .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .viewer-controls {
+            position: absolute; bottom: 20px; right: 20px;
+            display: flex; gap: 8px;
+        }
+        .viewer-btn {
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08); color: var(--text-primary);
+            padding: 10px 14px; border-radius: 8px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+        }
+        .viewer-btn:hover { background: rgba(255,255,255,0.1); }
+        .viewer-hint {
+            position: absolute; bottom: 20px; left: 20px;
+            color: var(--text-muted); font-size: 0.8rem;
+            background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 6px;
+        }
+
+        /* ─── Approach Info Card ─── */
+        .approach-info {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; margin-top: 24px;
+        }
+        .info-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); padding: 20px;
+            transition: all 0.3s;
+        }
+        .info-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.12); }
+        .info-card .info-label {
+            color: var(--text-muted); font-size: 0.78rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+        }
+        .info-card .info-value {
+            font-size: 1.5rem; font-weight: 800;
+        }
+        .info-card .info-sub { color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px; }
+
+        /* ─── Comparison Table ─── */
+        .comparison-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            border-radius: var(--radius); overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .comparison-table thead th {
+            background: var(--bg-card); color: var(--text-primary);
+            padding: 18px 20px; text-align: center; font-weight: 700;
+            font-size: 0.95rem; border-bottom: 1px solid var(--border-color);
+        }
+        .comparison-table thead th:first-child { text-align: left; }
+        .comparison-table thead th:nth-child(2) { color: var(--accent-green); }
+        .comparison-table thead th:nth-child(3) { color: var(--accent-orange); }
+        .comparison-table thead th:nth-child(4) { color: var(--accent-purple); }
+        .comparison-table tbody td {
+            background: var(--bg-secondary);
+            padding: 14px 20px; text-align: center;
+            font-size: 0.9rem; font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .comparison-table tbody td:first-child {
+            text-align: left; color: var(--text-secondary); font-weight: 600;
+        }
+        .comparison-table tbody tr:hover td { background: var(--bg-card); }
+        .comparison-table .badge-yes {
+            background: rgba(34, 197, 94, 0.15); color: var(--accent-green);
+            padding: 3px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
+        }
+        .comparison-table .badge-no {
+            background: rgba(239, 68, 68, 0.15); color: var(--accent-red);
+            padding: 3px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
+        }
+        .comparison-table .badge-best {
+            background: rgba(139, 92, 246, 0.15); color: var(--accent-purple);
+            padding: 3px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700;
+        }
+
+        /* ─── Charts ─── */
+        .charts-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px;
+        }
+        .chart-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 28px;
+        }
+        .chart-card h3 {
+            font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;
+        }
+
+        /* ─── Methodology ─── */
+        .method-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+        }
+        .method-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 32px; position: relative;
+            overflow: hidden; transition: all 0.3s;
+        }
+        .method-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .method-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .method-card:nth-child(1)::before { background: var(--gradient-lidar); }
+        .method-card:nth-child(2)::before { background: var(--gradient-rgbd); }
+        .method-card:nth-child(3)::before { background: var(--gradient-hybrid); }
+        .method-card .method-num {
+            font-size: 3rem; font-weight: 900; opacity: 0.08;
+            position: absolute; top: 10px; right: 20px;
+        }
+        .method-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+        .method-card .method-sensor {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; color: var(--accent-cyan);
+            margin-bottom: 16px;
+        }
+        .method-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+        .method-card ul {
+            list-style: none; margin-top: 16px;
+        }
+        .method-card ul li {
+            padding: 6px 0; color: var(--text-secondary); font-size: 0.88rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .method-card ul li::before {
+            content: '▸'; color: var(--accent-cyan); font-weight: 700;
+        }
+
+        /* ─── Proteus Section ─── */
+        .proteus-tabs {
+            display: flex; justify-content: center; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;
+        }
+        .proteus-tab {
+            padding: 12px 24px; border-radius: 10px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .proteus-tab.active {
+            color: var(--text-primary); background: var(--bg-card-hover);
+            border-color: rgba(6, 182, 212, 0.4); box-shadow: 0 0 25px rgba(6, 182, 212, 0.2);
+        }
+        .proteus-content {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+        }
+        .proteus-img-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden; transition: all 0.3s;
+        }
+        .proteus-img-card:hover {
+            transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .proteus-img-card img {
+            width: 100%; height: auto; display: block;
+        }
+        .proteus-img-card .img-label {
+            padding: 16px; text-align: center;
+            font-weight: 600; font-size: 0.9rem; color: var(--text-secondary);
+        }
+        .proteus-video-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden; grid-column: 1 / -1;
+        }
+        .proteus-video-card video {
+            width: 100%; height: auto; display: block;
+        }
+        .proteus-video-card .video-label {
+            padding: 16px; text-align: center;
+            font-weight: 600; font-size: 0.95rem; color: var(--accent-cyan);
+        }
+        .proteus-components {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px; margin-top: 32px;
+        }
+        .component-chip {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); padding: 14px 18px;
+            text-align: center; font-size: 0.85rem; font-weight: 600;
+            color: var(--text-secondary); transition: all 0.2s;
+        }
+        .component-chip:hover {
+            border-color: rgba(6, 182, 212, 0.3); color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+        .component-chip .chip-icon { font-size: 1.3rem; display: block; margin-bottom: 6px; }
+
+        /* ─── ML Section ─── */
+        .ml-hero-stats {
+            display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin-bottom: 40px;
+        }
+        .ml-stat {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); padding: 20px 28px; text-align: center;
+            min-width: 130px; transition: all 0.3s;
+        }
+        .ml-stat:hover { transform: translateY(-3px); border-color: rgba(239, 68, 68, 0.3); }
+        .ml-stat .ml-val {
+            font-size: 1.8rem; font-weight: 800;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .ml-stat .ml-label {
+            color: var(--text-muted); font-size: 0.75rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;
+        }
+        .ml-version-tabs {
+            display: flex; justify-content: center; gap: 12px; margin-bottom: 32px;
+        }
+        .ml-version-tab {
+            padding: 10px 24px; border-radius: 10px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .ml-version-tab.active {
+            color: var(--text-primary); background: var(--bg-card-hover);
+            border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
+        }
+        .ml-content-area { display: none; }
+        .ml-content-area.active { display: block; }
+        .ml-images-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;
+        }
+        .ml-img-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden; transition: all 0.3s;
+        }
+        .ml-img-card:hover {
+            transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .ml-img-card img {
+            width: 100%; height: auto; display: block;
+        }
+        .ml-img-card .ml-img-label {
+            padding: 14px; text-align: center;
+            font-weight: 600; font-size: 0.88rem; color: var(--text-secondary);
+        }
+        .ml-full-img {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden; margin-bottom: 24px;
+        }
+        .ml-full-img img { width: 100%; height: auto; display: block; }
+        .ml-full-img .ml-img-label {
+            padding: 14px; text-align: center;
+            font-weight: 600; font-size: 0.9rem; color: var(--text-secondary);
+        }
+        .ml-limitations {
+            background: var(--bg-card); border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius); padding: 28px; margin-top: 32px;
+        }
+        .ml-limitations h3 {
+            color: var(--accent-orange); font-size: 1.1rem; margin-bottom: 16px;
+        }
+        .ml-limitations ul {
+            list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .ml-limitations ul li {
+            color: var(--text-secondary); font-size: 0.88rem;
+            display: flex; align-items: flex-start; gap: 8px;
+        }
+        .ml-limitations ul li::before {
+            content: '⚠️'; font-size: 0.8rem; flex-shrink: 0;
+        }
+
+        .proteus-panel { display: none; }
+        .proteus-panel.active { display: block; }
+
+        /* ─── Footer ─── */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 40px 0; text-align: center;
+            color: var(--text-muted); font-size: 0.85rem;
+        }
+        footer .footer-brand {
+            font-size: 1.1rem; font-weight: 700; margin-bottom: 8px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            .method-grid { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .hero-stats { gap: 24px; }
+            .viewer-canvas { height: 350px; }
+            .nav-links { display: none; }
+            .proteus-content { grid-template-columns: 1fr; }
+            .ml-images-grid { grid-template-columns: 1fr; }
+            .ml-limitations ul { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="bg-glow bg-glow-3"></div>
+
+<!-- ─── Navigation ─── -->
+<nav>
+    <div class="container">
+        <div class="nav-brand">
+            <span>🤖 SAR Rover Mapping</span>
+            <span class="badge">FYDP D — Group 2</span>
+        </div>
+        <div class="nav-links">
+            <a href="#viewer">3D Maps</a>
+            <a href="#comparison">Comparison</a>
+            <a href="#proteus">Proteus</a>
+            <a href="#ml-detection">ML Detection</a>
+            <a href="#methodology">Methodology</a>
+            <a href="#analytics">Analytics</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge">BRAC University · EEE Department</div>
+        <h1>3D Mapping for Search & Rescue</h1>
+        <p>Comparing LiDAR, RGB-D, and Hybrid sensor fusion approaches for autonomous SAR rover navigation in collapsed structures.</p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="value">3</div>
+                <div class="label">Mapping Approaches</div>
+            </div>
+            <div class="hero-stat">
+                <div class="value">107K+</div>
+                <div class="label">Total Points</div>
+            </div>
+            <div class="hero-stat">
+                <div class="value">YOLOv8</div>
+                <div class="label">ML Detection</div>
+            </div>
+            <div class="hero-stat">
+                <div class="value">Proteus</div>
+                <div class="label">Circuit Sim</div>
+            </div>
+            <div class="hero-stat">
+                <div class="value">Real-time</div>
+                <div class="label">SLAM</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Interactive 3D Viewer ─── -->
+<section id="viewer">
+    <div class="container">
+        <div class="section-header">
+            <h2>Interactive 3D Point Cloud Maps</h2>
+            <p>Explore the generated maps — click and drag to rotate, scroll to zoom</p>
+        </div>
+
+        <div class="approach-tabs">
+            <div class="approach-tab active" data-approach="1" onclick="switchApproach(1)">
+                <span class="tab-icon">🟢</span> Approach 1 — LiDAR
+            </div>
+            <div class="approach-tab" data-approach="2" onclick="switchApproach(2)">
+                <span class="tab-icon">🟠</span> Approach 2 — RGB-D
+            </div>
+            <div class="approach-tab" data-approach="3" onclick="switchApproach(3)">
+                <span class="tab-icon">🟣</span> Approach 3 — Hybrid
+            </div>
+        </div>
+
+        <div class="viewer-container">
+            <canvas id="viewer3d" class="viewer-canvas"></canvas>
+            <div class="viewer-overlay">
+                <div class="viewer-tag" id="viewer-label">
+                    <span class="dot" style="background:#22c55e"></span>
+                    <span id="viewer-title">Approach 1 — LiDAR Only</span>
+                </div>
+                <div class="viewer-tag" id="viewer-points">
+                    <span>📊</span> <span id="point-count">66,519 points</span>
+                </div>
+            </div>
+            <div class="viewer-hint">🖱️ Drag to rotate · Scroll to zoom · Right-click to pan</div>
+            <div class="viewer-controls">
+                <button class="viewer-btn" onclick="resetCamera()">⟲ Reset View</button>
+                <button class="viewer-btn" onclick="toggleAutoRotate()">🔄 Auto Rotate</button>
+            </div>
+        </div>
+
+        <div class="approach-info" id="approach-info">
+            <div class="info-card">
+                <div class="info-label">Sensor</div>
+                <div class="info-value" id="info-sensor" style="font-size:1.1rem;">RPLiDAR C1 (16-Layer)</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Points</div>
+                <div class="info-value" id="info-points">66,519</div>
+                <div class="info-sub" id="info-density">360° coverage</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Power Draw</div>
+                <div class="info-value" id="info-power">~32W</div>
+                <div class="info-sub" id="info-battery">~68 min runtime</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Data Rate</div>
+                <div class="info-value" id="info-data">0.8 MB/s</div>
+                <div class="info-sub" id="info-color">No color data</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">SLAM</div>
+                <div class="info-value" id="info-slam" style="font-size:1.1rem;">2D Grid Map</div>
+                <div class="info-sub" id="info-slam-detail">Occupancy grid</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Comparison Table ─── -->
+<section id="comparison">
+    <div class="container">
+        <div class="section-header">
+            <h2>Head-to-Head Comparison</h2>
+            <p>Detailed metrics across all three mapping approaches</p>
+        </div>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>🟢 LiDAR</th>
+                    <th>🟠 RGB-D (Orbbec)</th>
+                    <th>🟣 Hybrid</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Primary Sensor</td>
+                    <td>RPLiDAR C1</td>
+                    <td>Orbbec Astra Pro</td>
+                    <td>LiDAR + Orbbec</td>
+                </tr>
+                <tr>
+                    <td>Point Cloud Size</td>
+                    <td><span class="badge-best">66,519</span></td>
+                    <td>23,441</td>
+                    <td>18,120</td>
+                </tr>
+                <tr>
+                    <td>Field of View</td>
+                    <td><span class="badge-best">360°</span></td>
+                    <td>90° (front)</td>
+                    <td><span class="badge-best">360° + 90°</span></td>
+                </tr>
+                <tr>
+                    <td>Color Data</td>
+                    <td><span class="badge-no">No</span></td>
+                    <td><span class="badge-yes">Yes</span></td>
+                    <td><span class="badge-yes">Yes</span></td>
+                </tr>
+                <tr>
+                    <td>Depth Range</td>
+                    <td>0.15 – 12m</td>
+                    <td>0.4 – 4.5m</td>
+                    <td>0.15 – 12m</td>
+                </tr>
+                <tr>
+                    <td>Active Power Draw</td>
+                    <td><span class="badge-best">~32W</span></td>
+                    <td>~40W</td>
+                    <td>~52W</td>
+                </tr>
+                <tr>
+                    <td>Battery Life (3300mAh)</td>
+                    <td><span class="badge-best">~68 min</span></td>
+                    <td>~55 min</td>
+                    <td>~42 min</td>
+                </tr>
+                <tr>
+                    <td>Data Throughput</td>
+                    <td>~0.8 MB/s</td>
+                    <td>~2.1 MB/s</td>
+                    <td>~2.9 MB/s</td>
+                </tr>
+                <tr>
+                    <td>SLAM Algorithm</td>
+                    <td>2D Grid</td>
+                    <td>Cloud Accumulation</td>
+                    <td><span class="badge-best">RTAB-Map Fusion</span></td>
+                </tr>
+                <tr>
+                    <td>Loop Closure</td>
+                    <td><span class="badge-no">No</span></td>
+                    <td><span class="badge-no">No</span></td>
+                    <td><span class="badge-yes">Yes (RTAB-Map)</span></td>
+                </tr>
+                <tr>
+                    <td>Best For</td>
+                    <td>Navigation & Obstacle Avoidance</td>
+                    <td>Object Recognition & 3D Reconstruction</td>
+                    <td>Complete SAR Mapping Solution</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ─── Analytics Charts ─── -->
+<section id="analytics">
+    <div class="container">
+        <div class="section-header">
+            <h2>Performance Analytics</h2>
+            <p>Visual breakdown of power, data, and sensor characteristics</p>
+        </div>
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>⚡ Power Consumption Breakdown (W)</h3>
+                <canvas id="powerChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>📊 Point Cloud & Data Comparison</h3>
+                <canvas id="pointsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Methodology ─── -->
+<section id="methodology">
+    <div class="container">
+        <div class="section-header">
+            <h2>Mapping Methodology</h2>
+            <p>How each approach captures and reconstructs the environment</p>
+        </div>
+        <div class="method-grid">
+            <div class="method-card">
+                <div class="method-num">01</div>
+                <h3 style="color: var(--accent-green);">LiDAR Mapping</h3>
+                <div class="method-sensor">RPLiDAR C1 · 16 Layers · 360°</div>
+                <p>Full 360° structural scanning using a 16-layer rotating LiDAR. Produces a dense geometric point cloud ideal for navigation and obstacle mapping.</p>
+                <ul>
+                    <li>720 horizontal × 16 vertical rays</li>
+                    <li>0.15m – 12m range</li>
+                    <li>2D occupancy grid for path planning</li>
+                    <li>Lowest power draw (~32W)</li>
+                </ul>
+            </div>
+            <div class="method-card">
+                <div class="method-num">02</div>
+                <h3 style="color: var(--accent-orange);">RGB-D Mapping</h3>
+                <div class="method-sensor">Orbbec Astra Pro · 480×360 · 90° FOV</div>
+                <p>High-resolution depth + color camera captures detailed 3D reconstructions with real-world textures and colors, crucial for victim identification.</p>
+                <ul>
+                    <li>480×360 resolution depth + RGB</li>
+                    <li>Back-projected colored point cloud</li>
+                    <li>~100K+ points per frame</li>
+                    <li>Consensus voxel accumulation</li>
+                </ul>
+            </div>
+            <div class="method-card">
+                <div class="method-num">03</div>
+                <h3 style="color: var(--accent-purple);">Hybrid Fusion</h3>
+                <div class="method-sensor">LiDAR + Orbbec · RTAB-Map SLAM</div>
+                <p>Combines the strengths of both sensors using RTAB-Map SLAM for robust loop closure, drift correction, and fused occupancy mapping.</p>
+                <ul>
+                    <li>LiDAR for 360° structure + navigation</li>
+                    <li>RGB-D for colored 3D reconstruction</li>
+                    <li>RTAB-Map sensor fusion (Grid/Sensor=2)</li>
+                    <li>Loop closure for drift correction</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Proteus Circuit Simulation ─── -->
+<section id="proteus">
+    <div class="container">
+        <div class="section-header">
+            <h2>⚡ Proteus Circuit Simulation</h2>
+            <p>Hardware-level circuit design and simulation for all three approach configurations</p>
+        </div>
+
+        <div class="proteus-tabs">
+            <div class="proteus-tab active" onclick="switchProteus(1)">🔧 Approach 1 — LiDAR</div>
+            <div class="proteus-tab" onclick="switchProteus(2)">🔧 Approach 2 — RGB-D</div>
+            <div class="proteus-tab" onclick="switchProteus(3)">🔧 Approach 3 — Hybrid</div>
+        </div>
+
+        <!-- Approach 1 -->
+        <div class="proteus-panel active" id="proteus-1">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img src="proteus/Proteus%20approach%201%20CCT.png" alt="Approach 1 Circuit Diagram">
+                    <div class="img-label">📐 Circuit Schematic — LiDAR Configuration</div>
+                </div>
+                <div class="proteus-img-card">
+                    <img src="proteus/Proteus%20approach%201%20working.png" alt="Approach 1 Working Simulation">
+                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
+                </div>
+                <div class="proteus-video-card">
+                    <video controls preload="metadata">
+                        <source src="proteus/Proteus%20for%20approach%201.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-label">🎬 Proteus Simulation Video — Approach 1 (LiDAR)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approach 2 -->
+        <div class="proteus-panel" id="proteus-2">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img src="proteus/Proteus%20approach%202%20CCT.png" alt="Approach 2 Circuit Diagram">
+                    <div class="img-label">📐 Circuit Schematic — RGB-D Configuration</div>
+                </div>
+                <div class="proteus-img-card">
+                    <img src="proteus/Proteus%20approach%202%20working.png" alt="Approach 2 Working Simulation">
+                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
+                </div>
+                <div class="proteus-video-card">
+                    <video controls preload="metadata">
+                        <source src="proteus/Proteus%20for%20approach%202.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-label">🎬 Proteus Simulation Video — Approach 2 (RGB-D)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approach 3 -->
+        <div class="proteus-panel" id="proteus-3">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img src="proteus/Proteus%20approach%203%20CCT.png" alt="Approach 3 Circuit Diagram">
+                    <div class="img-label">📐 Circuit Schematic — Hybrid Configuration</div>
+                </div>
+                <div class="proteus-img-card">
+                    <img src="proteus/Proteus%20approach%203%20working.png" alt="Approach 3 Working Simulation">
+                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
+                </div>
+                <div class="proteus-video-card">
+                    <video controls preload="metadata">
+                        <source src="proteus/Proteus%20for%20approach%203.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-label">🎬 Proteus Simulation Video — Approach 3 (Hybrid)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="proteus-components">
+            <div class="component-chip"><span class="chip-icon">🧠</span>Arduino Mega 2560</div>
+            <div class="component-chip"><span class="chip-icon">📡</span>ESP32 WROOM</div>
+            <div class="component-chip"><span class="chip-icon">⚙️</span>TB6612FNG Driver</div>
+            <div class="component-chip"><span class="chip-icon">🔄</span>Stepper Motor</div>
+            <div class="component-chip"><span class="chip-icon">🏎️</span>DC Motors</div>
+            <div class="component-chip"><span class="chip-icon">💨</span>MQ-135 Air Sensor</div>
+            <div class="component-chip"><span class="chip-icon">🔥</span>MQ-4 Methane</div>
+            <div class="component-chip"><span class="chip-icon">☁️</span>MQ-7 CO Sensor</div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── ML Thermal Detection ─── -->
+<section id="ml-detection">
+    <div class="container">
+        <div class="section-header">
+            <h2>🔥 Thermal Survivor Detection</h2>
+            <p>YOLOv8 object detection trained on thermal imagery for human detection in SAR scenarios</p>
+        </div>
+
+        <div class="ml-hero-stats">
+            <div class="ml-stat">
+                <div class="ml-val">YOLOv8</div>
+                <div class="ml-label">Architecture</div>
+            </div>
+            <div class="ml-stat">
+                <div class="ml-val">82.5%</div>
+                <div class="ml-label">mAP@50 (V5)</div>
+            </div>
+            <div class="ml-stat">
+                <div class="ml-val">84.3%</div>
+                <div class="ml-label">Precision</div>
+            </div>
+            <div class="ml-stat">
+                <div class="ml-val">71.8%</div>
+                <div class="ml-label">Recall</div>
+            </div>
+            <div class="ml-stat">
+                <div class="ml-val">47.5%</div>
+                <div class="ml-label">mAP@50-95</div>
+            </div>
+            <div class="ml-stat">
+                <div class="ml-val">13,922</div>
+                <div class="ml-label">Training Images</div>
+            </div>
+        </div>
+
+        <div class="ml-version-tabs">
+            <div class="ml-version-tab active" onclick="switchMLVersion('v5')">🆕 V5 — Enhanced (Multi-Polarity)</div>
+            <div class="ml-version-tab" onclick="switchMLVersion('v4')">V4 — Baseline</div>
+        </div>
+
+        <!-- V5 Content -->
+        <div class="ml-content-area active" id="ml-v5">
+            <div class="ml-images-grid">
+                <div class="ml-img-card">
+                    <img src="ml/v5_confusion_matrix.png" alt="V5 Confusion Matrix">
+                    <div class="ml-img-label">Confusion Matrix — V5 (13,922 images)</div>
+                </div>
+                <div class="ml-img-card">
+                    <img src="ml/v5_results.png" alt="V5 Training Curves">
+                    <div class="ml-img-label">Training Curves — 40 Epochs</div>
+                </div>
+            </div>
+            <div class="ml-full-img">
+                <img src="ml/v5_preview.png" alt="V5 Detection Samples">
+                <div class="ml-img-label">V5 Training Samples — Green = human detection · Includes inverted polarity augmentation</div>
+            </div>
+        </div>
+
+        <!-- V4 Content -->
+        <div class="ml-content-area" id="ml-v4">
+            <div class="ml-images-grid">
+                <div class="ml-img-card">
+                    <img src="ml/confusion_v4.png" alt="V4 Confusion Matrix">
+                    <div class="ml-img-label">Confusion Matrix + Metrics — V4</div>
+                </div>
+                <div class="ml-img-card">
+                    <img src="ml/training_curves_v4.png" alt="V4 Training Curves">
+                    <div class="ml-img-label">Training Curves — 60 Epochs</div>
+                </div>
+            </div>
+            <div class="ml-full-img">
+                <img src="ml/sample_v4.png" alt="V4 Training Samples">
+                <div class="ml-img-label">V4 Training Samples — Green bounding boxes</div>
+            </div>
+        </div>
+
+        <!-- V4 → V5 Comparison Chart -->
+        <div class="charts-grid" style="margin-top: 32px;">
+            <div class="chart-card">
+                <h3>📈 V4 vs V5 — Key Metrics Comparison</h3>
+                <canvas id="mlCompareChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>📊 V5 Training Progress (mAP@50)</h3>
+                <canvas id="mlTrainingChart"></canvas>
+            </div>
+        </div>
+
+        <div class="ml-limitations">
+            <h3>⚠️ Known Limitations & Future Work</h3>
+            <ul>
+                <li>V4 struggled with white-hot polarity thermal images (inverted palette)</li>
+                <li>V5 added inverted polarity augmentation to address this gap</li>
+                <li>Low recall on distant/small subjects (sub-50px bounding boxes)</li>
+                <li>Background false positives (3,518 in V5) need further tuning</li>
+                <li>Future: multi-class detection (human, animal, vehicle, debris)</li>
+                <li>Future: integration with rover's onboard Orbbec camera feed</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+    <div class="container">
+        <div class="footer-brand">FYDP D — Group 2 · BRAC University</div>
+        <p>Search & Rescue Rover — Complete System Dashboard</p>
+        <p style="margin-top: 8px;">EEE Department · 2025–2026</p>
+    </div>
+</footer>
+
+<!-- ─── Three.js 3D Viewer ─── -->
+<script>
+const APPROACHES = {
+    1: {
+        file: 'lidar_map.ply',
+        title: 'Approach 1 — LiDAR Only',
+        color: '#22c55e',
+        points: '66,519',
+        sensor: 'RPLiDAR C1 (16-Layer)',
+        power: '~32W',
+        battery: '~68 min runtime',
+        data: '0.8 MB/s',
+        dataColor: 'No color data',
+        density: '360° coverage',
+        slam: '2D Grid Map',
+        slamDetail: 'Occupancy grid',
+    },
+    2: {
+        file: 'rgbd_orbbec_map.ply',
+        title: 'Approach 2 — RGB-D (Orbbec)',
+        color: '#f97316',
+        points: '23,441',
+        sensor: 'Orbbec Astra Pro',
+        power: '~40W',
+        battery: '~55 min runtime',
+        data: '2.1 MB/s',
+        dataColor: 'Full RGB color',
+        density: '90° forward cone',
+        slam: 'Cloud Accumulation',
+        slamDetail: 'Consensus voxel merge',
+    },
+    3: {
+        file: 'hybrid_map.ply',
+        title: 'Approach 3 — Hybrid Fusion',
+        color: '#8b5cf6',
+        points: '18,120',
+        sensor: 'LiDAR + Orbbec Astra',
+        power: '~52W',
+        battery: '~42 min runtime',
+        data: '2.9 MB/s',
+        dataColor: 'Full RGB color',
+        density: '360° + 90° dense',
+        slam: 'RTAB-Map Fusion',
+        slamDetail: 'LiDAR + RGB-D + loop closure',
+    }
+};
+
+let scene, camera, renderer, controls, currentCloud, autoRotate = false;
+let mouseDown = false, mouseX = 0, mouseY = 0;
+let rotX = 0.6, rotY = 0, distance = 6, targetX = 0, targetY = 0, targetZ = 0;
+
+function initViewer() {
+    const canvas = document.getElementById('viewer3d');
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x0d1117);
+
+    scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0d1117, 15, 30);
+
+    camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    updateCamera();
+
+    // Grid helper
+    const grid = new THREE.GridHelper(20, 40, 0x1a2332, 0x111827);
+    grid.position.y = -0.5;
+    scene.add(grid);
+
+    // Ambient light
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+    // Mouse controls
+    canvas.addEventListener('mousedown', (e) => { mouseDown = true; mouseX = e.clientX; mouseY = e.clientY; });
+    canvas.addEventListener('mouseup', () => mouseDown = false);
+    canvas.addEventListener('mouseleave', () => mouseDown = false);
+    canvas.addEventListener('mousemove', (e) => {
+        if (!mouseDown) return;
+        if (e.buttons === 1) { // Left click - rotate
+            rotY += (e.clientX - mouseX) * 0.005;
+            rotX += (e.clientY - mouseY) * 0.005;
+            rotX = Math.max(0.1, Math.min(Math.PI - 0.1, rotX));
+        } else if (e.buttons === 2) { // Right click - pan
+            targetX -= (e.clientX - mouseX) * 0.005;
+            targetZ -= (e.clientY - mouseY) * 0.005;
+        }
+        mouseX = e.clientX; mouseY = e.clientY;
+        updateCamera();
+    });
+    canvas.addEventListener('wheel', (e) => {
+        distance += e.deltaY * 0.005;
+        distance = Math.max(1, Math.min(20, distance));
+        updateCamera();
+        e.preventDefault();
+    }, { passive: false });
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    window.addEventListener('resize', () => {
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+    });
+
+    loadPLY(1);
+    animate();
+}
+
+function updateCamera() {
+    camera.position.set(
+        targetX + distance * Math.sin(rotX) * Math.sin(rotY),
+        targetY + distance * Math.cos(rotX),
+        targetZ + distance * Math.sin(rotX) * Math.cos(rotY)
+    );
+    camera.lookAt(targetX, targetY, targetZ);
+}
+
+function resetCamera() {
+    rotX = 0.6; rotY = 0; distance = 6; targetX = 0; targetY = 0; targetZ = 0;
+    updateCamera();
+}
+
+function toggleAutoRotate() {
+    autoRotate = !autoRotate;
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    if (autoRotate) { rotY += 0.005; updateCamera(); }
+    renderer.render(scene, camera);
+}
+
+function loadPLY(approach) {
+    const info = APPROACHES[approach];
+    fetch(info.file)
+        .then(r => r.text())
+        .then(text => {
+            if (currentCloud) scene.remove(currentCloud);
+
+            const lines = text.split('\n');
+            let headerEnd = 0;
+            let vertexCount = 0;
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('element vertex')) {
+                    vertexCount = parseInt(lines[i].split(' ')[2]);
+                }
+                if (lines[i].trim() === 'end_header') {
+                    headerEnd = i + 1; break;
+                }
+            }
+
+            const positions = new Float32Array(vertexCount * 3);
+            const colors = new Float32Array(vertexCount * 3);
+            let hasColor = false;
+
+            // Compute centroid for centering
+            let cx = 0, cy = 0, cz = 0, count = 0;
+            for (let i = 0; i < vertexCount; i++) {
+                const parts = lines[headerEnd + i]?.trim().split(/\s+/);
+                if (!parts || parts.length < 3) continue;
+                cx += parseFloat(parts[0]);
+                cy += parseFloat(parts[1]);
+                cz += parseFloat(parts[2]);
+                count++;
+            }
+            cx /= count; cy /= count; cz /= count;
+
+            for (let i = 0; i < vertexCount; i++) {
+                const parts = lines[headerEnd + i]?.trim().split(/\s+/);
+                if (!parts || parts.length < 3) continue;
+
+                positions[i * 3]     = parseFloat(parts[0]) - cx;
+                positions[i * 3 + 1] = parseFloat(parts[2]) - cz; // swap Y/Z
+                positions[i * 3 + 2] = -(parseFloat(parts[1]) - cy);
+
+                if (parts.length >= 6) {
+                    const r = parseInt(parts[3]), g = parseInt(parts[4]), b = parseInt(parts[5]);
+                    if (r === 0 && g === 0 && b === 0) {
+                        // LiDAR default: use approach color
+                        const c = new THREE.Color(info.color);
+                        colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+                    } else {
+                        colors[i * 3] = r / 255; colors[i * 3 + 1] = g / 255; colors[i * 3 + 2] = b / 255;
+                        hasColor = true;
+                    }
+                } else {
+                    const c = new THREE.Color(info.color);
+                    colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+                }
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.03,
+                vertexColors: true,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.9,
+            });
+
+            currentCloud = new THREE.Points(geometry, material);
+            scene.add(currentCloud);
+        });
+}
+
+function switchApproach(n) {
+    document.querySelectorAll('.approach-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-approach="${n}"]`).classList.add('active');
+
+    const info = APPROACHES[n];
+    document.getElementById('viewer-title').textContent = info.title;
+    document.querySelector('#viewer-label .dot').style.background = info.color;
+    document.getElementById('point-count').textContent = info.points + ' points';
+    document.getElementById('info-sensor').textContent = info.sensor;
+    document.getElementById('info-points').textContent = info.points;
+    document.getElementById('info-density').textContent = info.density;
+    document.getElementById('info-power').textContent = info.power;
+    document.getElementById('info-battery').textContent = info.battery;
+    document.getElementById('info-data').textContent = info.data;
+    document.getElementById('info-color').textContent = info.dataColor;
+    document.getElementById('info-slam').textContent = info.slam;
+    document.getElementById('info-slam-detail').textContent = info.slamDetail;
+
+    loadPLY(n);
+    resetCamera();
+}
+
+// ─── Chart.js ───
+function initCharts() {
+    // Power chart
+    new Chart(document.getElementById('powerChart'), {
+        type: 'bar',
+        data: {
+            labels: ['DC Motors', 'LiDAR System', 'Depth Camera', 'RPi 5', 'Wi-Fi 6E', 'Gas Sensors', 'Other'],
+            datasets: [
+                {
+                    label: 'LiDAR',
+                    data: [24, 6.15, 0, 5.0, 2.5, 2.4, 0.95],
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                    borderColor: '#22c55e',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'RGB-D',
+                    data: [24, 0, 2.4, 5.0, 2.5, 2.4, 1.6],
+                    backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                    borderColor: '#f97316',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Hybrid',
+                    data: [24, 6.15, 2.4, 7.0, 3.5, 2.4, 1.45],
+                    backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                    borderColor: '#8b5cf6',
+                    borderWidth: 1,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } },
+            },
+            scales: {
+                x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                y: { ticks: { color: '#64748b', callback: v => v + 'W' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+            }
+        }
+    });
+
+    // Points / data chart
+    new Chart(document.getElementById('pointsChart'), {
+        type: 'bar',
+        data: {
+            labels: ['LiDAR', 'RGB-D', 'Hybrid'],
+            datasets: [
+                {
+                    label: 'Point Cloud Size',
+                    data: [66519, 23441, 18120],
+                    backgroundColor: ['rgba(34,197,94,0.7)', 'rgba(249,115,22,0.7)', 'rgba(139,92,246,0.7)'],
+                    borderColor: ['#22c55e', '#f97316', '#8b5cf6'],
+                    borderWidth: 1,
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Data Rate (MB/s)',
+                    data: [0.8, 2.1, 2.9],
+                    backgroundColor: ['rgba(34,197,94,0.25)', 'rgba(249,115,22,0.25)', 'rgba(139,92,246,0.25)'],
+                    borderColor: ['#22c55e', '#f97316', '#8b5cf6'],
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    yAxisID: 'y1',
+                    type: 'line',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } },
+            },
+            scales: {
+                x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                y: { position: 'left', ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.04)' }, title: { display: true, text: 'Points', color: '#64748b' } },
+                y1: { position: 'right', ticks: { color: '#64748b', callback: v => v + ' MB/s' }, grid: { display: false }, title: { display: true, text: 'Data Rate', color: '#64748b' } }
+            }
+        }
+    });
+}
+
+// ─── Proteus Tab Switching ───
+function switchProteus(n) {
+    document.querySelectorAll('.proteus-tab').forEach((t, i) => {
+        t.classList.toggle('active', i === n - 1);
+    });
+    document.querySelectorAll('.proteus-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('proteus-' + n).classList.add('active');
+}
+
+// ─── ML Version Switching ───
+function switchMLVersion(ver) {
+    document.querySelectorAll('.ml-version-tab').forEach((t, i) => {
+        t.classList.toggle('active', (ver === 'v5' && i === 0) || (ver === 'v4' && i === 1));
+    });
+    document.querySelectorAll('.ml-content-area').forEach(c => c.classList.remove('active'));
+    document.getElementById('ml-' + ver).classList.add('active');
+}
+
+// ─── ML Charts ───
+function initMLCharts() {
+    // V4 vs V5 comparison
+    new Chart(document.getElementById('mlCompareChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Precision', 'Recall', 'mAP@50', 'mAP@50-95'],
+            datasets: [
+                {
+                    label: 'V4 (Baseline)',
+                    data: [75.8, 57.0, 65.0, 30.0],
+                    backgroundColor: 'rgba(239, 68, 68, 0.4)',
+                    borderColor: '#ef4444', borderWidth: 2,
+                },
+                {
+                    label: 'V5 (Enhanced)',
+                    data: [84.3, 71.8, 82.5, 47.5],
+                    backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                    borderColor: '#f97316', borderWidth: 2,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } } },
+            scales: {
+                x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                y: { min: 0, max: 100, ticks: { color: '#64748b', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+            }
+        }
+    });
+
+    // V5 training progress (mAP@50 over epochs from CSV)
+    const v5Epochs = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40];
+    const v5Map50 = [53.5,62.5,60.6,64.0,67.5,70.6,67.6,71.9,71.2,71.6,73.5,73.4,63.9,73.0,76.9,76.2,75.0,77.0,78.0,78.7,77.0,79.3,79.4,80.0,79.8,80.0,80.1,80.7,80.7,80.9,81.0,81.3,81.3,81.6,81.9,82.2,82.1,82.2,82.2,82.5];
+    new Chart(document.getElementById('mlTrainingChart'), {
+        type: 'line',
+        data: {
+            labels: v5Epochs,
+            datasets: [{
+                label: 'mAP@50 (%)',
+                data: v5Map50,
+                borderColor: '#f97316',
+                backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                fill: true, tension: 0.3, pointRadius: 2,
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } } },
+            scales: {
+                x: { title: { display: true, text: 'Epoch', color: '#64748b' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                y: { min: 50, max: 90, title: { display: true, text: 'mAP@50 (%)', color: '#64748b' }, ticks: { color: '#64748b', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+            }
+        }
+    });
+}
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+    initViewer();
+    initCharts();
+    initMLCharts();
+});
+</script>
+
+</body>
+</html>
