@@ -689,6 +689,17 @@
             .hero-logo-right { right: 15px; }
         }
 
+
+        /* ─── Approach Side-by-Side Layout ─── */
+        .approach-layout {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+            align-items: start;
+        }
+        .approach-layout .proteus-img-card { margin: 0; }
+        .approach-layout .method-card { margin: 0; }
+        @media (max-width: 768px) {
+            .approach-layout { grid-template-columns: 1fr; }
+        }
         /* ─── Responsive ─── */
         @media (max-width: 768px) {
             .method-grid { grid-template-columns: 1fr; }
@@ -981,65 +992,62 @@
         </div>
 
         <div class="proteus-panel active" id="approach-1">
-            <div class="proteus-content">
+            <div class="approach-layout">
                 <div class="proteus-img-card">
                     <img loading="lazy" src="diagrams/approach_1_flow.png" alt="Approach 1 Flowchart" style="width: 100%; border-radius: 8px;">
-                    <div class="img-label">🔄 LiDAR Pipeline — ICP Algorithm</div>
                 </div>
-            </div>
-            <div class="method-card" style="margin-top: 24px;">
-                <div class="method-num">01</div>
-                <h3 style="color: var(--accent-green);">LiDAR Mapping</h3>
-                <div class="method-sensor">RPLiDAR C1 · 16 Layers · 360°</div>
-                <p>Full 360° structural scanning using a 16-layer rotating LiDAR. Produces a dense geometric point cloud ideal for navigation and obstacle mapping.</p>
-                <ul>
-                    <li>720 horizontal × 16 vertical rays</li>
-                    <li>0.15m – 12m range</li>
-                    <li>2D occupancy grid for path planning</li>
-                    <li>Lowest power draw (~32W)</li>
-                </ul>
+                <div class="method-card">
+                    <div class="method-num">01</div>
+                    <h3 style="color: var(--accent-green);">LiDAR Mapping</h3>
+                    <div class="method-sensor">RPLiDAR C1 · 16 Layers · 360°</div>
+                    <p>Full 360° structural scanning using a 16-layer rotating LiDAR. Produces a dense geometric point cloud ideal for navigation and obstacle mapping.</p>
+                    <ul>
+                        <li>720 horizontal × 16 vertical rays</li>
+                        <li>0.15m – 12m range</li>
+                        <li>2D occupancy grid for path planning</li>
+                        <li>Lowest power draw (~32W)</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <div class="proteus-panel" id="approach-2">
-            <div class="proteus-content">
+            <div class="approach-layout">
                 <div class="proteus-img-card">
                     <img loading="lazy" src="diagrams/approach_2_flow.png" alt="Approach 2 Flowchart" style="width: 100%; border-radius: 8px;">
-                    <div class="img-label">🔄 RGB-D Pipeline — SLAM & Depth Fusion</div>
                 </div>
-            </div>
-            <div class="method-card" style="margin-top: 24px;">
-                <div class="method-num">02</div>
-                <h3 style="color: var(--accent-orange);">RGB-D Mapping</h3>
-                <div class="method-sensor">Orbbec Astra Pro · 480×360 · 90° FOV</div>
-                <p>High-resolution depth + color camera captures detailed 3D reconstructions with real-world textures and colors, crucial for victim identification.</p>
-                <ul>
-                    <li>480×360 resolution depth + RGB</li>
-                    <li>Back-projected colored point cloud</li>
-                    <li>~100K+ points per frame</li>
-                    <li>Consensus voxel accumulation</li>
-                </ul>
+                <div class="method-card">
+                    <div class="method-num">02</div>
+                    <h3 style="color: var(--accent-orange);">RGB-D Mapping</h3>
+                    <div class="method-sensor">Orbbec Astra Pro · 480×360 · 90° FOV</div>
+                    <p>High-resolution depth + color camera captures detailed 3D reconstructions with real-world textures and colors, crucial for victim identification.</p>
+                    <ul>
+                        <li>480×360 resolution depth + RGB</li>
+                        <li>Back-projected colored point cloud</li>
+                        <li>~100K+ points per frame</li>
+                        <li>Consensus voxel accumulation</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <div class="proteus-panel" id="approach-3">
-            <div class="proteus-content">
+            <div class="approach-layout">
                 <div class="proteus-img-card">
                     <img loading="lazy" src="diagrams/approach_3_flow.png" alt="Approach 3 Flowchart" style="width: 100%; border-radius: 8px;">
-                    <div class="img-label">🔄 Hybrid Pipeline — RTAB-MAP Multisensor Fusion</div>
                 </div>
-            </div>
-            <div class="method-card" style="margin-top: 24px;">
-                <div class="method-num">03</div>
-                <h3 style="color: var(--accent-purple);">Hybrid Fusion</h3>
-                <div class="method-sensor">LiDAR + Orbbec · RTAB-Map SLAM</div>
-                <p>Combines the strengths of both sensors using RTAB-Map SLAM for robust loop closure, drift correction, and fused occupancy mapping.</p>
-                <ul>
-                    <li>LiDAR for 360° structure + navigation</li>
-                    <li>RGB-D for colored 3D reconstruction</li>
-                    <li>RTAB-Map sensor fusion (Grid/Sensor=2)</li>
-                    <li>Loop closure for drift correction</li>
-                </ul>
+                <div class="method-card">
+                    <div class="method-num">03</div>
+                    <h3 style="color: var(--accent-purple);">Hybrid Fusion</h3>
+                    <div class="method-sensor">LiDAR + Orbbec · RTAB-Map SLAM</div>
+                    <p>Combines the strengths of both sensors using RTAB-Map SLAM for robust loop closure, drift correction, and fused occupancy mapping.</p>
+                    <ul>
+                        <li>LiDAR for 360° structure + navigation</li>
+                        <li>RGB-D for colored 3D reconstruction</li>
+                        <li>RTAB-Map sensor fusion (Grid/Sensor=2)</li>
+                        <li>Loop closure for drift correction</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
