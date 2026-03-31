@@ -721,7 +721,6 @@
             <a href="#viewer">3D Maps</a>
             <a href="#comparison">Comparison</a>
             <a href="#analytics">Analytics</a>
-            <a href="#architecture">Architecture</a>
             <a href="#methodology">Methodology</a>
             <a href="#proteus">Proteus</a>
             <a href="#ml-detection">ML Detection</a>
@@ -738,7 +737,6 @@
     <a href="#viewer">3D Maps</a>
     <a href="#comparison">Comparison</a>
     <a href="#analytics">Analytics</a>
-    <a href="#architecture">Architecture</a>
     <a href="#methodology">Methodology</a>
     <a href="#proteus">Proteus</a>
     <a href="#ml-detection">ML Detection</a>
@@ -962,48 +960,34 @@
 </section>
 
 <!-- ─── Methodology ─── -->
-<section id="architecture" class="reveal">
+<section id="methodology" class="reveal">
     <div class="container">
         <div class="section-header">
-            <h2>System Architecture</h2>
-            <p>Overall system design and data flow pipelines for each approach</p>
+            <h2>System Architecture & Methodology</h2>
+            <p>Click an approach to explore its data flow pipeline and mapping methodology</p>
         </div>
 
-        <div style="margin-bottom: 50px;">
-            <h3 style="text-align: center; color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.2rem;">📊 Overall System Flowchart</h3>
+        <div style="margin-bottom: 40px;">
+            <h3 style="text-align: center; color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.1rem;">📊 Overall System Flowchart</h3>
             <div class="proteus-img-card" style="max-width: 900px; margin: 0 auto;">
                 <img loading="lazy" src="diagrams/system_overview.png" alt="System Overview Flowchart" style="width: 100%; border-radius: 12px;">
             </div>
         </div>
 
-        <div class="method-grid">
-            <div class="proteus-img-card">
-                <h3 style="color: var(--accent-green); margin-bottom: 12px; font-size: 1rem;">Approach 1 — LiDAR</h3>
-                <img loading="lazy" src="diagrams/approach_1_flow.png" alt="Approach 1 Flowchart" style="width: 100%; border-radius: 8px;">
-                <div class="img-label">🔄 LiDAR Pipeline — ICP Algorithm</div>
-            </div>
-            <div class="proteus-img-card">
-                <h3 style="color: var(--accent-orange); margin-bottom: 12px; font-size: 1rem;">Approach 2 — RGB-D</h3>
-                <img loading="lazy" src="diagrams/approach_2_flow.png" alt="Approach 2 Flowchart" style="width: 100%; border-radius: 8px;">
-                <div class="img-label">🔄 RGB-D Pipeline — SLAM & Depth Fusion</div>
-            </div>
-            <div class="proteus-img-card">
-                <h3 style="color: var(--accent-purple); margin-bottom: 12px; font-size: 1rem;">Approach 3 — Hybrid</h3>
-                <img loading="lazy" src="diagrams/approach_3_flow.png" alt="Approach 3 Flowchart" style="width: 100%; border-radius: 8px;">
-                <div class="img-label">🔄 Hybrid Pipeline — RTAB-MAP Multisensor Fusion</div>
-            </div>
+        <div class="proteus-tabs">
+            <div class="proteus-tab active" onclick="switchApproachTab(1)">🟢 Approach 1 — LiDAR</div>
+            <div class="proteus-tab" onclick="switchApproachTab(2)">🟠 Approach 2 — RGB-D</div>
+            <div class="proteus-tab" onclick="switchApproachTab(3)">🟣 Approach 3 — Hybrid</div>
         </div>
-    </div>
-</section>
 
-<section id="methodology" class="reveal">
-    <div class="container">
-        <div class="section-header">
-            <h2>Mapping Methodology</h2>
-            <p>How each approach captures and reconstructs the environment</p>
-        </div>
-        <div class="method-grid">
-            <div class="method-card">
+        <div class="proteus-panel active" id="approach-1">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="diagrams/approach_1_flow.png" alt="Approach 1 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <div class="img-label">🔄 LiDAR Pipeline — ICP Algorithm</div>
+                </div>
+            </div>
+            <div class="method-card" style="margin-top: 24px;">
                 <div class="method-num">01</div>
                 <h3 style="color: var(--accent-green);">LiDAR Mapping</h3>
                 <div class="method-sensor">RPLiDAR C1 · 16 Layers · 360°</div>
@@ -1015,7 +999,16 @@
                     <li>Lowest power draw (~32W)</li>
                 </ul>
             </div>
-            <div class="method-card">
+        </div>
+
+        <div class="proteus-panel" id="approach-2">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="diagrams/approach_2_flow.png" alt="Approach 2 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <div class="img-label">🔄 RGB-D Pipeline — SLAM & Depth Fusion</div>
+                </div>
+            </div>
+            <div class="method-card" style="margin-top: 24px;">
                 <div class="method-num">02</div>
                 <h3 style="color: var(--accent-orange);">RGB-D Mapping</h3>
                 <div class="method-sensor">Orbbec Astra Pro · 480×360 · 90° FOV</div>
@@ -1027,7 +1020,16 @@
                     <li>Consensus voxel accumulation</li>
                 </ul>
             </div>
-            <div class="method-card">
+        </div>
+
+        <div class="proteus-panel" id="approach-3">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="diagrams/approach_3_flow.png" alt="Approach 3 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <div class="img-label">🔄 Hybrid Pipeline — RTAB-MAP Multisensor Fusion</div>
+                </div>
+            </div>
+            <div class="method-card" style="margin-top: 24px;">
                 <div class="method-num">03</div>
                 <h3 style="color: var(--accent-purple);">Hybrid Fusion</h3>
                 <div class="method-sensor">LiDAR + Orbbec · RTAB-Map SLAM</div>
@@ -1665,6 +1667,18 @@ function switchProteus(n) {
     });
     document.querySelectorAll('.proteus-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('proteus-' + n).classList.add('active');
+}
+
+// ─── Approach Tab Switching ───
+function switchApproachTab(n) {
+    const section = document.getElementById('methodology');
+    section.querySelectorAll('.proteus-tab').forEach((t, i) => {
+        t.classList.toggle('active', i === n - 1);
+    });
+    ['approach-1', 'approach-2', 'approach-3'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+    });
+    document.getElementById('approach-' + n).classList.add('active');
 }
 
 // ─── ML Version Switching ───
