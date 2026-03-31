@@ -1230,6 +1230,7 @@
         <div class="proteus-components">
             <div class="component-chip"><span class="chip-icon">🧠</span>Arduino Mega 2560</div>
             <div class="component-chip"><span class="chip-icon">⚙️</span>TB6612FNG Driver</div>
+            <div class="component-chip proteus-stepper"><span class="chip-icon">🔄</span>Stepper Motor</div>
             <div class="component-chip"><span class="chip-icon">🏎️</span>DC Motors</div>
             <div class="component-chip"><span class="chip-icon">💨</span>MQ-135 Air Sensor</div>
             <div class="component-chip"><span class="chip-icon">🔥</span>MQ-4 Methane</div>
@@ -1783,11 +1784,15 @@ function initCharts() {
 
 // ─── Proteus Tab Switching ───
 function switchProteus(n) {
-    document.querySelectorAll('.proteus-tab').forEach((t, i) => {
+    var sec = document.getElementById('proteus');
+    sec.querySelectorAll('.proteus-tab').forEach((t, i) => {
         t.classList.toggle('active', i === n - 1);
     });
-    document.querySelectorAll('.proteus-panel').forEach(p => p.classList.remove('active'));
+    sec.querySelectorAll('.proteus-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('proteus-' + n).classList.add('active');
+    // Show/hide stepper motor chip (present in approach 1 & 3, absent in 2)
+    var stepper = document.querySelector('.proteus-stepper');
+    if (stepper) stepper.style.display = (n === 2) ? 'none' : '';
 }
 
 // ─── Approach Tab Switching ───
