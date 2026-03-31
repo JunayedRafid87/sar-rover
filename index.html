@@ -1592,9 +1592,10 @@ const APPROACHES = {
         battery: '~68 min runtime',
         data: '0.8 MB/s',
         dataColor: 'No color data',
-        density: '360° coverage',
+        density: '360\u00b0 coverage',
         slam: '2D Grid Map',
         slamDetail: 'Occupancy grid',
+        cam: { rotX: 0.6, rotY: 0, distance: 6 },
     },
     2: {
         file: 'rgbd_orbbec_map.ply',
@@ -1609,6 +1610,7 @@ const APPROACHES = {
         density: '90° forward cone',
         slam: 'Cloud Accumulation',
         slamDetail: 'Consensus voxel merge',
+        cam: { rotX: 0.6, rotY: 0, distance: 6 },
     },
     3: {
         file: 'hybrid_map.ply',
@@ -1619,11 +1621,12 @@ const APPROACHES = {
         power: '~52W',
         battery: '~42 min runtime',
         data: '2.9 MB/s',
-        dataColor: 'Full RGB color',
-        density: '360° + 90° dense',
-        slam: 'RTAB-Map Fusion',
-        slamDetail: 'LiDAR + RGB-D + loop closure',
-    }
+        dataColor: 'Fused RGB+Depth',
+        density: '360° + 90° cone',
+        slam: 'Hybrid SLAM',
+        slamDetail: 'LiDAR grid + depth refinement',
+        cam: { rotX: 1.05, rotY: 0.3, distance: 7 },
+    },
 };
 
 let scene, camera, renderer, controls, currentCloud, autoRotate = false;
@@ -1748,8 +1751,12 @@ function updateCamera() {
     camera.lookAt(targetX, targetY, targetZ);
 }
 
-function resetCamera() {
-    rotX = 0.6; rotY = 0; distance = 6; targetX = 0; targetY = 0; targetZ = 0;
+function resetCamera(approach) {
+    var cam = (approach && APPROACHES[approach] && APPROACHES[approach].cam)
+        ? APPROACHES[approach].cam
+        : { rotX: 0.6, rotY: 0, distance: 6 };
+    rotX = cam.rotX; rotY = cam.rotY; distance = cam.distance;
+    targetX = 0; targetY = 0; targetZ = 0;
     updateCamera();
 }
 
@@ -1868,7 +1875,7 @@ function switchApproach(n) {
     document.getElementById('info-slam-detail').textContent = info.slamDetail;
 
     loadPLY(n);
-    resetCamera();
+    resetCamera(n);
 }
 
 // ─── Chart.js ───
