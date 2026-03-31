@@ -1203,12 +1203,12 @@ function initViewer() {
     canvas.addEventListener('mousemove', (e) => {
         if (!mouseDown) return;
         if (e.buttons === 1) { // Left click - rotate
-            rotY += (e.clientX - mouseX) * 0.005;
-            rotX += (e.clientY - mouseY) * 0.005;
+            rotY -= (e.clientX - mouseX) * 0.005;
+            rotX -= (e.clientY - mouseY) * 0.005;
             rotX = Math.max(0.1, Math.min(Math.PI - 0.1, rotX));
         } else if (e.buttons === 2) { // Right click - pan
-            targetX -= (e.clientX - mouseX) * 0.005;
-            targetZ -= (e.clientY - mouseY) * 0.005;
+            targetX += (e.clientX - mouseX) * 0.005;
+            targetZ += (e.clientY - mouseY) * 0.005;
         }
         mouseX = e.clientX; mouseY = e.clientY;
         updateCamera();
@@ -1246,8 +1246,8 @@ function initViewer() {
         e.preventDefault();
         if (touchMode === 'rotate' && e.touches.length === 1) {
             const tx = e.touches[0].clientX, ty = e.touches[0].clientY;
-            rotY += (tx - touchStartX) * 0.005;
-            rotX += (ty - touchStartY) * 0.005;
+            rotY -= (tx - touchStartX) * 0.005;
+            rotX -= (ty - touchStartY) * 0.005;
             rotX = Math.max(0.1, Math.min(Math.PI - 0.1, rotX));
             touchStartX = tx; touchStartY = ty;
             updateCamera();
@@ -1263,8 +1263,8 @@ function initViewer() {
             // Two-finger pan
             const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
             const my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-            targetX -= (mx - touchStartX) * 0.005;
-            targetZ -= (my - touchStartY) * 0.005;
+            targetX += (mx - touchStartX) * 0.005;
+            targetZ += (my - touchStartY) * 0.005;
             touchStartX = mx; touchStartY = my;
             updateCamera();
         }
