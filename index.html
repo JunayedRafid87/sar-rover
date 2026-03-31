@@ -958,7 +958,6 @@
             .method-card:hover, .team-card:hover, .perf-card:hover,
             .info-card:hover, .ml-limitations:hover,
             .proteus-img-card:hover { transform: none; box-shadow: none; }
-            .comparison-table tbody tr:hover td { background: var(--bg-secondary); }
         }
 
         /* Light mode diagram switching - must be last */
@@ -2338,6 +2337,28 @@ function updateChartTheme(isLight) {
         chart.update('none'); // 'none' = no animation, fast
     });
 }
+
+// Comparison table touch highlight
+(function(){
+    var rows = document.querySelectorAll('.comparison-table tbody tr');
+    var activeRow = null;
+    rows.forEach(function(row) {
+        row.addEventListener('touchstart', function() {
+            if (activeRow && activeRow !== row) {
+                activeRow.querySelectorAll('td').forEach(function(td){ td.style.background=''; });
+            }
+            if (row === activeRow) {
+                row.querySelectorAll('td').forEach(function(td){ td.style.background=''; });
+                activeRow = null;
+            } else {
+                row.querySelectorAll('td').forEach(function(td){
+                    td.style.background='rgba(6,182,212,0.12)';
+                });
+                activeRow = row;
+            }
+        }, { passive: true });
+    });
+})();
 </script>
 </body>
 </html>
