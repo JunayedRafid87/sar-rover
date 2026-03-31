@@ -831,7 +831,7 @@
             <a href="#ml-detection">ML Detection</a>
             <a href="#about">About Us</a>
         </div>
-        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">ð</button>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">&#x1F319;</button>
         <button class="hamburger" id="hamburger" aria-label="Menu">
             <span></span><span></span><span></span>
         </button>
@@ -2093,7 +2093,7 @@ document.getElementById('theme-toggle').addEventListener('click',function(){
     var btn=this;
     setTimeout(function(){
         document.body.classList.toggle('light-mode');
-        btn.textContent=document.body.classList.contains('light-mode')?'\u2600\uFE0F':'\uD83C\uDF19';
+        btn.innerHTML=document.body.classList.contains('light-mode')?'&#x2600;&#xFE0F;':'&#x1F319;';
         // Update 3D viewer background
         if(window.threeRenderer){
             var isLight=document.body.classList.contains('light-mode');
