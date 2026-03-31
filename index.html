@@ -1142,6 +1142,7 @@
             <p>Detailed metrics across all three mapping approaches</p>
         </div>
 
+        <div class="comparison-table-wrap">
         <table class="comparison-table">
             <thead>
                 <tr>
@@ -1220,6 +1221,7 @@
                 </tr>
             </tbody>
         </table>
+        </div>
     </div>
 </section>
 
@@ -2054,7 +2056,7 @@ function initScrollReveal() {
                 entry.target.classList.add('visible');
             }
         });
-    }, { threshold: 0.1 });
+    }, { threshold: 0, rootMargin: '0px 0px -60px 0px' });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 }
