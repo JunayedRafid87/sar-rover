@@ -808,6 +808,46 @@
 
         /* Performance: GPU acceleration for hover effects */
 
+
+        /* Section Progress Indicator */
+        .section-nav {
+            position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+            z-index: 999; display: flex; flex-direction: column; gap: 10px;
+            pointer-events: none;
+        }
+        .section-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(148,163,184,0.3); border: 1px solid rgba(148,163,184,0.3);
+            transition: background 0.3s, transform 0.3s, height 0.3s;
+            pointer-events: all; cursor: pointer;
+        }
+        .section-dot.active {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            height: 24px; border-radius: 4px;
+            box-shadow: 0 0 8px rgba(6,182,212,0.5);
+        }
+        .section-dot:hover { background: rgba(148,163,184,0.6); }
+        .section-dot.active:hover { background: var(--accent-cyan); }
+        @media (max-width: 768px) { .section-nav { display: none; } }
+
+        /* Animated glow on active tab */
+        @keyframes tabGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(6,182,212,0.2), 0 0 0 1px rgba(6,182,212,0.3); }
+            50%       { box-shadow: 0 0 22px rgba(6,182,212,0.45), 0 0 0 1px rgba(6,182,212,0.5); }
+        }
+        .proteus-tab.active {
+            animation: tabGlow 2.5s ease-in-out infinite;
+        }
+        body.light-mode .proteus-tab.active {
+            animation: none;
+            box-shadow: 0 0 18px rgba(249,115,22,0.3);
+            border-color: rgba(249,115,22,0.5);
+        }
+
+        /* Chart containers adapt to light mode via filter */
+        body.light-mode canvas { filter: none; }
+        body.light-mode .charts-grid { background: transparent; }
         /* Light mode diagram switching - must be last */
         .diagram-light { display: none !important; }
         body.light-mode .diagram-dark { display: none !important; }
@@ -822,6 +862,15 @@
 </div>
 <script>setTimeout(function(){document.getElementById('preloader').classList.add('hidden')},2500);window.addEventListener('load',function(){setTimeout(function(){document.getElementById('preloader').classList.add('hidden')},500)});</script>
 <div class="scroll-progress" id="scroll-progress"></div>
+<nav class="section-nav" id="section-nav" aria-label="Page sections">
+  <button class="section-dot" data-section="viewer" title="3D Maps"></button>
+  <button class="section-dot" data-section="comparison" title="Comparison"></button>
+  <button class="section-dot" data-section="analytics" title="Analytics"></button>
+  <button class="section-dot" data-section="methodology" title="Methodology"></button>
+  <button class="section-dot" data-section="proteus" title="Proteus"></button>
+  <button class="section-dot" data-section="ml-detection" title="ML Detection"></button>
+  <button class="section-dot" data-section="about" title="About"></button>
+</nav>
 <div class="theme-transition" id="theme-transition"><div class="theme-transition-inner"><img src="fydp_logo.png" style="width:60px;height:60px;border-radius:12px;margin-bottom:12px;animation:plPulse 1s ease-in-out infinite" alt=""><div class="theme-spinner"></div></div></div>
 
 <div class="bg-grid"></div>
@@ -2119,9 +2168,61 @@ document.getElementById('theme-toggle').addEventListener('click',function(){
             window.threeRenderer.setClearColor(c);
             if(window.threeScene) window.threeScene.fog=new THREE.Fog(c,15,30);
         }
+        if(typeof updateChartTheme==='function') updateChartTheme(isLight);
         setTimeout(function(){overlay.classList.remove('active')},400);
     },300);
 });
+
+// Section Progress Indicator
+(function() {
+    var dots = document.querySelectorAll('.section-dot');
+    var sections = Array.from(dots).map(d => document.getElementById(d.dataset.section));
+    var heroSection = document.querySelector('.hero');
+
+    // Click to scroll
+    dots.forEach(function(dot) {
+        dot.addEventListener('click', function() {
+            var el = document.getElementById(this.dataset.section);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    var rafId = 0;
+    function updateDots() {
+        var mid = window.innerHeight * 0.45;
+        var active = 0;
+        sections.forEach(function(sec, i) {
+            if (!sec) return;
+            var rect = sec.getBoundingClientRect();
+            if (rect.top <= mid) active = i;
+        });
+        dots.forEach(function(d, i) { d.classList.toggle('active', i === active); });
+        rafId = 0;
+    }
+    window.addEventListener('scroll', function() {
+        if (!rafId) rafId = requestAnimationFrame(updateDots);
+    }, { passive: true });
+    updateDots();
+})();
+
+// Update chart colors on theme toggle
+function updateChartTheme(isLight) {
+    var textColor = isLight ? '#475569' : '#94a3b8';
+    var gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)';
+    Chart.instances && Object.values(Chart.instances).forEach(function(chart) {
+        if (!chart.options) return;
+        if (chart.options.plugins && chart.options.plugins.legend)
+            chart.options.plugins.legend.labels.color = textColor;
+        if (chart.options.scales) {
+            Object.values(chart.options.scales).forEach(function(scale) {
+                if (scale.ticks) scale.ticks.color = textColor;
+                if (scale.grid)  scale.grid.color  = gridColor;
+                if (scale.title) scale.title.color  = textColor;
+            });
+        }
+        chart.update('none'); // 'none' = no animation, fast
+    });
+}
 </script>
 </body>
 </html>
