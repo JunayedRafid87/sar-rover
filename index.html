@@ -38,6 +38,8 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { scroll-behavior: smooth; }
+
         body {
             font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg-primary);
@@ -45,6 +47,18 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
+
+        /* ─── Scroll Animations ─── */
+        .reveal {
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible {
+            opacity: 1; transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
 
         /* ─── Scrollbar ─── */
         ::-webkit-scrollbar { width: 8px; }
@@ -97,9 +111,32 @@
         .nav-links a {
             color: var(--text-secondary); text-decoration: none;
             padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
         .nav-links a:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+        .nav-links a.active {
+            color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1);
+            box-shadow: inset 0 -2px 0 var(--accent-cyan);
+        }
+
+        /* ─── Fullscreen Viewer ─── */
+        .viewer-section.fullscreen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--bg-primary); padding: 0;
+        }
+        .viewer-section.fullscreen .viewer-canvas { height: 100vh; border-radius: 0; }
+        .viewer-section.fullscreen .viewer-hint,
+        .viewer-section.fullscreen .approach-info,
+        .viewer-section.fullscreen .viewer-controls { display: none; }
+        .viewer-section.fullscreen .fs-exit-btn { display: flex; }
+        .fs-exit-btn {
+            display: none; position: absolute; top: 20px; right: 20px; z-index: 10000;
+            background: rgba(0,0,0,0.7); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 10px 18px; border-radius: 10px;
+            cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            align-items: center; gap: 8px; transition: all 0.2s;
+        }
+        .fs-exit-btn:hover { background: rgba(239, 68, 68, 0.3); }
 
         /* ─── Hero ─── */
         .hero {
@@ -554,7 +591,7 @@
 </section>
 
 <!-- ─── Interactive 3D Viewer ─── -->
-<section id="viewer">
+<section id="viewer" class="viewer-section">
     <div class="container">
         <div class="section-header">
             <h2>Interactive 3D Point Cloud Maps</h2>
@@ -584,11 +621,13 @@
                     <span>📊</span> <span id="point-count">66,519 points</span>
                 </div>
             </div>
-            <div class="viewer-hint">🖱️ Drag to rotate · Scroll to zoom · Right-click to pan</div>
+            <div class="viewer-hint">🖱️ Drag to rotate · Scroll to zoom · Right-click to pan · 📱 Touch: 1-finger rotate, pinch zoom</div>
             <div class="viewer-controls">
                 <button class="viewer-btn" onclick="resetCamera()">⟲ Reset View</button>
                 <button class="viewer-btn" onclick="toggleAutoRotate()">🔄 Auto Rotate</button>
+                <button class="viewer-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
             </div>
+            <button class="fs-exit-btn" onclick="toggleFullscreen()">✕ Exit Fullscreen</button>
         </div>
 
         <div class="approach-info" id="approach-info">
@@ -621,7 +660,7 @@
 </section>
 
 <!-- ─── Comparison Table ─── -->
-<section id="comparison">
+<section id="comparison" class="reveal">
     <div class="container">
         <div class="section-header">
             <h2>Head-to-Head Comparison</h2>
@@ -710,7 +749,7 @@
 </section>
 
 <!-- ─── Analytics Charts ─── -->
-<section id="analytics">
+<section id="analytics" class="reveal">
     <div class="container">
         <div class="section-header">
             <h2>Performance Analytics</h2>
@@ -730,7 +769,7 @@
 </section>
 
 <!-- ─── Methodology ─── -->
-<section id="methodology">
+<section id="methodology" class="reveal">
     <div class="container">
         <div class="section-header">
             <h2>Mapping Methodology</h2>
@@ -778,7 +817,7 @@
 </section>
 
 <!-- ─── Proteus Circuit Simulation ─── -->
-<section id="proteus">
+<section id="proteus" class="reveal">
     <div class="container">
         <div class="section-header">
             <h2>⚡ Proteus Circuit Simulation</h2>
@@ -795,11 +834,11 @@
         <div class="proteus-panel active" id="proteus-1">
             <div class="proteus-content">
                 <div class="proteus-img-card">
-                    <img src="proteus/Proteus%20approach%201%20CCT.png" alt="Approach 1 Circuit Diagram">
+                    <img loading="lazy" src="proteus/Proteus%20approach%201%20CCT.png" alt="Approach 1 Circuit Diagram">
                     <div class="img-label">📐 Circuit Schematic — LiDAR Configuration</div>
                 </div>
                 <div class="proteus-img-card">
-                    <img src="proteus/Proteus%20approach%201%20working.png" alt="Approach 1 Working Simulation">
+                    <img loading="lazy" src="proteus/Proteus%20approach%201%20working.png" alt="Approach 1 Working Simulation">
                     <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
                 </div>
                 <div class="proteus-video-card">
@@ -813,11 +852,11 @@
         <div class="proteus-panel" id="proteus-2">
             <div class="proteus-content">
                 <div class="proteus-img-card">
-                    <img src="proteus/Proteus%20approach%202%20CCT.png" alt="Approach 2 Circuit Diagram">
+                    <img loading="lazy" src="proteus/Proteus%20approach%202%20CCT.png" alt="Approach 2 Circuit Diagram">
                     <div class="img-label">📐 Circuit Schematic — RGB-D Configuration</div>
                 </div>
                 <div class="proteus-img-card">
-                    <img src="proteus/Proteus%20approach%202%20working.png" alt="Approach 2 Working Simulation">
+                    <img loading="lazy" src="proteus/Proteus%20approach%202%20working.png" alt="Approach 2 Working Simulation">
                     <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
                 </div>
                 <div class="proteus-video-card">
@@ -831,11 +870,11 @@
         <div class="proteus-panel" id="proteus-3">
             <div class="proteus-content">
                 <div class="proteus-img-card">
-                    <img src="proteus/Proteus%20approach%203%20CCT.png" alt="Approach 3 Circuit Diagram">
+                    <img loading="lazy" src="proteus/Proteus%20approach%203%20CCT.png" alt="Approach 3 Circuit Diagram">
                     <div class="img-label">📐 Circuit Schematic — Hybrid Configuration</div>
                 </div>
                 <div class="proteus-img-card">
-                    <img src="proteus/Proteus%20approach%203%20working.png" alt="Approach 3 Working Simulation">
+                    <img loading="lazy" src="proteus/Proteus%20approach%203%20working.png" alt="Approach 3 Working Simulation">
                     <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
                 </div>
                 <div class="proteus-video-card">
@@ -859,7 +898,7 @@
 </section>
 
 <!-- ─── ML Thermal Detection ─── -->
-<section id="ml-detection">
+<section id="ml-detection" class="reveal">
     <div class="container">
         <div class="section-header">
             <h2>🔥 Thermal Survivor Detection</h2>
@@ -902,16 +941,16 @@
         <div class="ml-content-area active" id="ml-v5">
             <div class="ml-images-grid">
                 <div class="ml-img-card">
-                    <img src="ml/v5_confusion_matrix.png" alt="V5 Confusion Matrix">
+                    <img loading="lazy" src="ml/v5_confusion_matrix.png" alt="V5 Confusion Matrix">
                     <div class="ml-img-label">Confusion Matrix — V5 (13,922 images)</div>
                 </div>
                 <div class="ml-img-card">
-                    <img src="ml/v5_results.png" alt="V5 Training Curves">
+                    <img loading="lazy" src="ml/v5_results.png" alt="V5 Training Curves">
                     <div class="ml-img-label">Training Curves — 40 Epochs</div>
                 </div>
             </div>
             <div class="ml-full-img">
-                <img src="ml/v5_preview.png" alt="V5 Detection Samples">
+                <img loading="lazy" src="ml/v5_preview.png" alt="V5 Detection Samples">
                 <div class="ml-img-label">V5 Training Samples — Green = human detection · Includes inverted polarity augmentation</div>
             </div>
         </div>
@@ -920,16 +959,16 @@
         <div class="ml-content-area" id="ml-v4">
             <div class="ml-images-grid">
                 <div class="ml-img-card">
-                    <img src="ml/confusion_v4.png" alt="V4 Confusion Matrix">
+                    <img loading="lazy" src="ml/confusion_v4.png" alt="V4 Confusion Matrix">
                     <div class="ml-img-label">Confusion Matrix + Metrics — V4</div>
                 </div>
                 <div class="ml-img-card">
-                    <img src="ml/training_curves_v4.png" alt="V4 Training Curves">
+                    <img loading="lazy" src="ml/training_curves_v4.png" alt="V4 Training Curves">
                     <div class="ml-img-label">Training Curves — 60 Epochs</div>
                 </div>
             </div>
             <div class="ml-full-img">
-                <img src="ml/sample_v4.png" alt="V4 Training Samples">
+                <img loading="lazy" src="ml/sample_v4.png" alt="V4 Training Samples">
                 <div class="ml-img-label">V4 Training Samples — Green bounding boxes</div>
             </div>
         </div>
@@ -1409,11 +1448,67 @@ function initMLCharts() {
     });
 }
 
+// ─── Scroll Reveal Animations ───
+function initScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+// ─── Active Nav Highlight ───
+function initActiveNav() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                navLinks.forEach(link => {
+                    link.classList.toggle('active',
+                        link.getAttribute('href') === '#' + id
+                    );
+                });
+            }
+        });
+    }, { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' });
+
+    sections.forEach(section => observer.observe(section));
+}
+
+// ─── Fullscreen Viewer ───
+function toggleFullscreen() {
+    const section = document.querySelector('.viewer-section');
+    section.classList.toggle('fullscreen');
+    // Resize renderer when entering/exiting fullscreen
+    setTimeout(() => {
+        const canvas = document.getElementById('viewer3d');
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+    }, 100);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const section = document.querySelector('.viewer-section.fullscreen');
+        if (section) toggleFullscreen();
+    }
+});
+
 // Init
 window.addEventListener('DOMContentLoaded', () => {
     initViewer();
     initCharts();
     initMLCharts();
+    initScrollReveal();
+    initActiveNav();
 });
 </script>
 
