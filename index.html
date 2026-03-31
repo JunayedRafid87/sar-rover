@@ -1463,23 +1463,29 @@ function initScrollReveal() {
 
 // ─── Active Nav Highlight ───
 function initActiveNav() {
-    const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-links a');
+    const sectionIds = Array.from(navLinks).map(a => a.getAttribute('href').slice(1));
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const id = entry.target.getAttribute('id');
-                navLinks.forEach(link => {
-                    link.classList.toggle('active',
-                        link.getAttribute('href') === '#' + id
-                    );
-                });
+    function updateActiveNav() {
+        const scrollY = window.scrollY + 120; // offset for sticky nav
+        let currentId = sectionIds[0];
+
+        for (const id of sectionIds) {
+            const el = document.getElementById(id);
+            if (el && el.offsetTop <= scrollY) {
+                currentId = id;
             }
-        });
-    }, { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' });
+        }
 
-    sections.forEach(section => observer.observe(section));
+        navLinks.forEach(link => {
+            link.classList.toggle('active',
+                link.getAttribute('href') === '#' + currentId
+            );
+        });
+    }
+
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+    updateActiveNav();
 }
 
 // ─── Fullscreen Viewer ───
