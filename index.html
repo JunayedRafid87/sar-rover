@@ -365,6 +365,12 @@
         .proteus-video-card video {
             width: 100%; height: auto; display: block;
         }
+        .yt-wrapper {
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+        }
+        .yt-wrapper iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
         .proteus-video-card .video-label {
             padding: 16px; text-align: center;
             font-weight: 600; font-size: 0.95rem; color: var(--accent-cyan);
@@ -797,9 +803,7 @@
                     <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
                 </div>
                 <div class="proteus-video-card">
-                    <video controls preload="metadata">
-                        <source src="proteus/Proteus%20for%20approach%201.mp4" type="video/mp4">
-                    </video>
+                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/YH4mtzIpYkA" title="Proteus Simulation - Approach 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
                     <div class="video-label">🎬 Proteus Simulation Video — Approach 1 (LiDAR)</div>
                 </div>
             </div>
@@ -817,9 +821,7 @@
                     <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
                 </div>
                 <div class="proteus-video-card">
-                    <video controls preload="metadata">
-                        <source src="proteus/Proteus%20for%20approach%202.mp4" type="video/mp4">
-                    </video>
+                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/-5_4aJ3pGlk" title="Proteus Simulation - Approach 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
                     <div class="video-label">🎬 Proteus Simulation Video — Approach 2 (RGB-D)</div>
                 </div>
             </div>
@@ -837,9 +839,7 @@
                     <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
                 </div>
                 <div class="proteus-video-card">
-                    <video controls preload="metadata">
-                        <source src="proteus/Proteus%20for%20approach%203.mp4" type="video/mp4">
-                    </video>
+                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/THYSCRNkEWY" title="Proteus Simulation - Approach 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
                     <div class="video-label">🎬 Proteus Simulation Video — Approach 3 (Hybrid)</div>
                 </div>
             </div>
