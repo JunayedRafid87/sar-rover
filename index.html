@@ -1097,7 +1097,7 @@
             </div>
             <div class="viewer-hint">🖱️ Drag to rotate · Scroll to zoom · Right-click to pan · 📱 Touch: 1-finger rotate, pinch zoom</div>
             <div class="viewer-controls">
-                <button class="viewer-btn" onclick="resetCamera()">⟲ Reset View</button>
+                <button class="viewer-btn" onclick="resetCamera(currentApproach)">⟲ Reset View</button>
                 <button class="viewer-btn" onclick="toggleAutoRotate()">🔄 Auto Rotate</button>
                 <button class="viewer-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
             </div>
@@ -1632,6 +1632,7 @@ const APPROACHES = {
 let scene, camera, renderer, controls, currentCloud, autoRotate = false;
 let mouseDown = false, mouseX = 0, mouseY = 0;
 let rotX = 0.6, rotY = 0, distance = 6, targetX = 0, targetY = 0, targetZ = 0;
+let currentApproach = 1;
 
 function initViewer() {
     const canvas = document.getElementById('viewer3d');
@@ -1874,6 +1875,7 @@ function switchApproach(n) {
     document.getElementById('info-slam').textContent = info.slam;
     document.getElementById('info-slam-detail').textContent = info.slamDetail;
 
+    currentApproach = n;
     loadPLY(n);
     resetCamera(n);
 }
