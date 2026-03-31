@@ -775,6 +775,7 @@
     <div class="preloader-text">Loading</div>
     <div class="preloader-bar"></div>
 </div>
+<script>setTimeout(function(){document.getElementById('preloader').classList.add('hidden')},2500);window.addEventListener('load',function(){setTimeout(function(){document.getElementById('preloader').classList.add('hidden')},500)});</script>
 <div class="scroll-progress" id="scroll-progress"></div>
 
 <div class="bg-grid"></div>
@@ -2028,5 +2029,13 @@ window.addEventListener('DOMContentLoaded', () => {
     <img src="" alt="Enlarged view" id="lightbox-img">
 </div>
 
+<script>
+// Scroll Progress
+window.addEventListener('scroll',function(){var s=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-window.innerHeight;document.getElementById('scroll-progress').style.width=(s/h*100)+'%';});
+// Typing Effect
+(function(){var h1=document.querySelector('.hero h1');if(!h1)return;var txt=h1.textContent;h1.innerHTML='';var i=0;function t(){if(i<txt.length){h1.textContent=txt.substring(0,i+1);i++;setTimeout(t,25)}}setTimeout(t,800)})();
+// Theme Toggle
+document.getElementById('theme-toggle').addEventListener('click',function(){document.body.classList.toggle('light-mode');this.textContent=document.body.classList.contains('light-mode')?'\u2600\uFE0F':'\uD83C\uDF19';});
+</script>
 </body>
 </html>
