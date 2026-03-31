@@ -93,6 +93,11 @@
         body.light-mode .hero{background:linear-gradient(135deg,#e0f2fe,#f0e6ff,#fce7f3)}
         body.light-mode .hero h1{color:#0f172a}
         body.light-mode .hero-logo{filter:none}
+        body.light-mode .viewer-tag { background: rgba(255,255,255,0.85); color: #0f172a; border-color: rgba(0,0,0,0.1); }
+        body.light-mode .viewer-btn { background: rgba(255,255,255,0.85); color: #0f172a; border-color: rgba(0,0,0,0.1); }
+        body.light-mode .viewer-btn:hover { background: rgba(0,0,0,0.08); }
+        body.light-mode .viewer-hint { background: rgba(255,255,255,0.85); color: #475569; }
+
 
 
 
@@ -808,7 +813,7 @@
 </div>
 <script>setTimeout(function(){document.getElementById('preloader').classList.add('hidden')},2500);window.addEventListener('load',function(){setTimeout(function(){document.getElementById('preloader').classList.add('hidden')},500)});</script>
 <div class="scroll-progress" id="scroll-progress"></div>
-<div class="theme-transition" id="theme-transition"><div class="theme-transition-inner"><div class="theme-spinner"></div></div></div>
+<div class="theme-transition" id="theme-transition"><div class="theme-transition-inner"><img src="fydp_logo.png" style="width:60px;height:60px;border-radius:12px;margin-bottom:12px;animation:plPulse 1s ease-in-out infinite" alt=""><div class="theme-spinner"></div></div></div>
 
 <div class="bg-grid"></div>
 <div class="bg-glow bg-glow-1"></div>
@@ -1225,7 +1230,6 @@
         <div class="proteus-components">
             <div class="component-chip"><span class="chip-icon">🧠</span>Arduino Mega 2560</div>
             <div class="component-chip"><span class="chip-icon">⚙️</span>TB6612FNG Driver</div>
-            <div class="component-chip"><span class="chip-icon">🔄</span>Stepper Motor</div>
             <div class="component-chip"><span class="chip-icon">🏎️</span>DC Motors</div>
             <div class="component-chip"><span class="chip-icon">💨</span>MQ-135 Air Sensor</div>
             <div class="component-chip"><span class="chip-icon">🔥</span>MQ-4 Methane</div>
