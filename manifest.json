@@ -1,0 +1,13 @@
+{
+  "name": "SAR Rover 3D Mapping Showcase",
+  "short_name": "SAR Rover",
+  "description": "3D Spatial Mapping System for Collapsed Structures with Integrated Survivor Localization and Hazard Detection",
+  "start_url": "/sar-rover/",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#06b6d4",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
