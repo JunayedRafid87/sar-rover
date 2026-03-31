@@ -93,10 +93,7 @@
         body.light-mode .hero{background:linear-gradient(135deg,#e0f2fe,#f0e6ff,#fce7f3)}
         body.light-mode .hero h1{color:#0f172a}
         body.light-mode .hero-logo{filter:none}
-        /* Light mode diagram switching */
-        .diagram-light{display:none}
-        body.light-mode .diagram-dark{display:none}
-        body.light-mode .diagram-light{display:block}
+
 
 
 
@@ -772,6 +769,10 @@
             .ml-images-grid { grid-template-columns: 1fr; }
             .ml-limitations ul { grid-template-columns: 1fr; }
         }
+        /* Light mode diagram switching - must be last */
+        .diagram-light { display: none !important; }
+        body.light-mode .diagram-dark { display: none !important; }
+        body.light-mode .diagram-light { display: block !important; }
     </style>
 </head>
 <body>
