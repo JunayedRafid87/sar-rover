@@ -93,6 +93,11 @@
         body.light-mode .hero{background:linear-gradient(135deg,#e0f2fe,#f0e6ff,#fce7f3)}
         body.light-mode .hero h1{color:#0f172a}
         body.light-mode .hero-logo{filter:none}
+        /* Light mode diagram switching */
+        .diagram-light{display:none}
+        body.light-mode .diagram-dark{display:none}
+        body.light-mode .diagram-light{display:block}
+
 
 
         body {
@@ -1044,7 +1049,8 @@
         <div style="margin-bottom: 40px;">
             <h3 style="text-align: center; color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.1rem;">📊 Overall System Flowchart</h3>
             <div class="proteus-img-card" style="max-width: 900px; margin: 0 auto;">
-                <img loading="lazy" src="diagrams/system_overview.png" alt="System Overview Flowchart" style="width: 100%; border-radius: 12px;">
+                <img loading="lazy" src="diagrams/system_overview.png" alt="System Overview Flowchart" class="diagram-dark" style="width: 100%; border-radius: 12px;">
+                <img loading="lazy" src="diagrams/light/system_overview.png" alt="System Overview Flowchart" class="diagram-light" style="width: 100%; border-radius: 12px;">
             </div>
         </div>
 
@@ -1069,7 +1075,8 @@
                     </ul>
                 </div>
                 <div class="proteus-img-card">
-                    <img loading="lazy" src="diagrams/approach_1_flow.png" alt="Approach 1 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/approach_1_flow.png" alt="Approach 1 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/light/approach_1_flow.png" alt="Approach 1 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
                 </div>
             </div>
         </div>
@@ -1089,7 +1096,8 @@
                     </ul>
                 </div>
                 <div class="proteus-img-card">
-                    <img loading="lazy" src="diagrams/approach_2_flow.png" alt="Approach 2 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/approach_2_flow.png" alt="Approach 2 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/light/approach_2_flow.png" alt="Approach 2 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
                 </div>
             </div>
         </div>
@@ -1109,7 +1117,8 @@
                     </ul>
                 </div>
                 <div class="proteus-img-card">
-                    <img loading="lazy" src="diagrams/approach_3_flow.png" alt="Approach 3 Flowchart" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/approach_3_flow.png" alt="Approach 3 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/light/approach_3_flow.png" alt="Approach 3 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
                 </div>
             </div>
         </div>
