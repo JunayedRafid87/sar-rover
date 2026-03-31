@@ -631,8 +631,16 @@
         }
         .team-logos img {
             height: 80px; object-fit: contain;
-            filter: brightness(0) invert(1); opacity: 0.85;
         }
+
+        /* ─── Hero Corner Logos ─── */
+        .hero-logo {
+            position: absolute; top: 30px; z-index: 2;
+            height: 70px; width: auto; object-fit: contain;
+            opacity: 0.9;
+        }
+        .hero-logo-left { left: 30px; }
+        .hero-logo-right { right: 30px; }
         .team-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
             margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto;
@@ -676,6 +684,9 @@
             .team-grid { grid-template-columns: 1fr; }
             .team-logos { gap: 20px; }
             .team-logos img { height: 55px; }
+            .hero-logo { height: 45px; top: 20px; }
+            .hero-logo-left { left: 15px; }
+            .hero-logo-right { right: 15px; }
         }
 
         /* ─── Responsive ─── */
@@ -733,6 +744,8 @@
 <!-- ─── Hero ─── -->
 <section class="hero">
     <canvas id="particles-canvas"></canvas>
+    <img src="bracu_logo.png" alt="BRAC University" class="hero-logo hero-logo-left">
+    <img src="bsrm_logo.png" alt="BSRM School of Engineering" class="hero-logo hero-logo-right">
     <div class="container">
         <div class="hero-badge">BSRM School of Engineering · BRAC University</div>
         <h1>3D Spatial Mapping System for Collapsed Structures with Integrated Survivor Localization and Hazard Detection</h1>
@@ -1177,10 +1190,7 @@
 <!-- ─── Team & ATC Section ─── -->
 <section class="team-section reveal">
     <div class="container">
-        <div class="team-logos">
-            <img loading="lazy" src="bracu_logo.png" alt="BRAC University Logo">
-            <img loading="lazy" src="bsrm_logo.png" alt="BSRM School of Engineering Logo">
-        </div>
+
         <div class="section-header">
             <h2>Project Team</h2>
             <p>FYDP-P | ATC 2 | Group 2</p>
