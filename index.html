@@ -60,6 +60,81 @@
         .reveal-delay-2 { transition-delay: 0.2s; }
         .reveal-delay-3 { transition-delay: 0.3s; }
 
+        /* ─── Particles Canvas ─── */
+        #particles-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+        .hero { position: relative; overflow: hidden; }
+        .hero .container { position: relative; z-index: 1; }
+
+        /* ─── Back to Top ─── */
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; z-index: 999;
+            width: 48px; height: 48px; border-radius: 50%;
+            background: rgba(59, 130, 246, 0.5); border: 1px solid rgba(59, 130, 246, 0.3);
+            color: white; font-size: 1.3rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transform: translateY(20px);
+            transition: all 0.3s; pointer-events: none;
+            backdrop-filter: blur(10px);
+        }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .back-to-top:hover { background: rgba(59, 130, 246, 0.75); transform: translateY(-3px); }
+
+        /* ─── Image Lightbox ─── */
+        .lightbox-overlay {
+            position: fixed; inset: 0; z-index: 10000;
+            background: rgba(0, 0, 0, 0.9); display: none;
+            align-items: center; justify-content: center;
+            cursor: zoom-out;
+        }
+        .lightbox-overlay.active { display: flex; }
+        .lightbox-overlay img {
+            max-width: 92vw; max-height: 90vh;
+            border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            object-fit: contain;
+        }
+        .lightbox-close {
+            position: absolute; top: 20px; right: 24px;
+            color: white; font-size: 2rem; cursor: pointer;
+            background: rgba(255,255,255,0.1); border: none;
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .lightbox-close:hover { background: rgba(239, 68, 68, 0.4); }
+        .proteus-img-card img, .ml-images-grid img { cursor: zoom-in; }
+
+        /* ─── Hamburger Menu ─── */
+        .hamburger {
+            display: none; background: none; border: none; cursor: pointer;
+            width: 32px; height: 24px; position: relative; z-index: 101;
+        }
+        .hamburger span {
+            display: block; width: 100%; height: 2px;
+            background: var(--text-primary); border-radius: 2px;
+            position: absolute; left: 0; transition: all 0.3s;
+        }
+        .hamburger span:nth-child(1) { top: 0; }
+        .hamburger span:nth-child(2) { top: 50%; transform: translateY(-50%); }
+        .hamburger span:nth-child(3) { bottom: 0; }
+        .hamburger.active span:nth-child(1) { top: 50%; transform: translateY(-50%) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { bottom: 50%; transform: translateY(50%) rotate(-45deg); }
+        .mobile-menu {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 14, 26, 0.97); z-index: 100;
+            flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+        }
+        .mobile-menu.active { display: flex; }
+        .mobile-menu a {
+            color: var(--text-primary); text-decoration: none;
+            font-size: 1.3rem; font-weight: 600; padding: 14px 40px;
+            border-radius: 12px; transition: all 0.2s;
+        }
+        .mobile-menu a:hover { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+
         /* ─── Scrollbar ─── */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-primary); }
@@ -305,6 +380,10 @@
             padding: 14px 20px; text-align: center;
             font-size: 0.9rem; font-weight: 500;
             border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        .comparison-table tbody tr:hover td {
+            background: rgba(6, 182, 212, 0.06);
         }
         .comparison-table tbody td:first-child {
             text-align: left; color: var(--text-secondary); font-weight: 600;
@@ -547,6 +626,7 @@
             .hero-stats { gap: 24px; }
             .viewer-canvas { height: 350px; }
             .nav-links { display: none; }
+            .hamburger { display: block; }
             .proteus-content { grid-template-columns: 1fr; }
             .ml-images-grid { grid-template-columns: 1fr; }
             .ml-limitations ul { grid-template-columns: 1fr; }
@@ -575,22 +655,36 @@
             <a href="#proteus">Proteus</a>
             <a href="#ml-detection">ML Detection</a>
         </div>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
     </div>
 </nav>
 
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu" id="mobile-menu">
+    <a href="#viewer">3D Maps</a>
+    <a href="#comparison">Comparison</a>
+    <a href="#analytics">Analytics</a>
+    <a href="#methodology">Methodology</a>
+    <a href="#proteus">Proteus</a>
+    <a href="#ml-detection">ML Detection</a>
+</div>
+
 <!-- ─── Hero ─── -->
 <section class="hero">
+    <canvas id="particles-canvas"></canvas>
     <div class="container">
         <div class="hero-badge">BRAC University · EEE Department</div>
         <h1>3D Mapping for Search & Rescue</h1>
         <p>Comparing LiDAR, RGB-D, and Hybrid sensor fusion approaches for autonomous SAR rover navigation in collapsed structures.</p>
         <div class="hero-stats">
             <div class="hero-stat">
-                <div class="value">3</div>
+                <div class="value" data-count="3">0</div>
                 <div class="label">Mapping Approaches</div>
             </div>
             <div class="hero-stat">
-                <div class="value">107K+</div>
+                <div class="value" data-count="107" data-suffix="K+">0</div>
                 <div class="label">Total Points</div>
             </div>
             <div class="hero-stat">
@@ -1534,6 +1628,131 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ─── Animated Stat Counters ───
+function initCounters() {
+    document.querySelectorAll('.hero-stat .value[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count);
+        const suffix = el.dataset.suffix || '';
+        let current = 0;
+        const step = Math.max(1, Math.floor(target / 40));
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(timer); }
+            el.textContent = current + suffix;
+        }, 30);
+    });
+}
+
+// ─── Hero Particle Background ───
+function initParticles() {
+    const canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const hero = canvas.parentElement;
+    let particles = [];
+    const count = 60;
+
+    function resize() {
+        canvas.width = hero.offsetWidth;
+        canvas.height = hero.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            r: Math.random() * 2 + 0.5,
+            a: Math.random() * 0.4 + 0.1
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, i) => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(59, 130, 246, ${p.a})`;
+            ctx.fill();
+
+            // Draw connections
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = p.x - particles[j].x;
+                const dy = p.y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.08 * (1 - dist / 120)})`;
+                    ctx.stroke();
+                }
+            }
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// ─── Back to Top Button ───
+function initBackToTop() {
+    const btn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 600);
+    }, { passive: true });
+}
+
+// ─── Image Lightbox ───
+function initLightbox() {
+    const overlay = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    const closeBtn = overlay.querySelector('.lightbox-close');
+
+    document.querySelectorAll('.proteus-img-card img, .ml-images-grid img').forEach(img => {
+        img.addEventListener('click', () => {
+            lbImg.src = img.src;
+            overlay.classList.add('active');
+        });
+    });
+
+    closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('active');
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') overlay.classList.remove('active');
+    });
+}
+
+// ─── Hamburger Menu ───
+function initHamburger() {
+    const btn = document.getElementById('hamburger');
+    const menu = document.getElementById('mobile-menu');
+
+    btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        menu.classList.toggle('active');
+        document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+    });
+
+    menu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            btn.classList.remove('active');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    });
+}
+
 // Init
 window.addEventListener('DOMContentLoaded', () => {
     initViewer();
@@ -1541,8 +1760,22 @@ window.addEventListener('DOMContentLoaded', () => {
     initMLCharts();
     initScrollReveal();
     initActiveNav();
+    initCounters();
+    initParticles();
+    initBackToTop();
+    initLightbox();
+    initHamburger();
 });
 </script>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
+
+<!-- Lightbox Overlay -->
+<div class="lightbox-overlay" id="lightbox">
+    <button class="lightbox-close">✕</button>
+    <img src="" alt="Enlarged view" id="lightbox-img">
+</div>
 
 </body>
 </html>
