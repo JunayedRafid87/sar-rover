@@ -1066,6 +1066,57 @@ function initViewer() {
     }, { passive: false });
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
+    // Touch controls (mobile/tablet)
+    let touchStartDist = 0;
+    let touchStartX = 0, touchStartY = 0;
+    let touchMode = ''; // 'rotate', 'pinch-pan'
+
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (e.touches.length === 1) {
+            touchMode = 'rotate';
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            touchMode = 'pinch-pan';
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            touchStartDist = Math.sqrt(dx * dx + dy * dy);
+            touchStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            touchStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (touchMode === 'rotate' && e.touches.length === 1) {
+            const tx = e.touches[0].clientX, ty = e.touches[0].clientY;
+            rotY += (tx - touchStartX) * 0.005;
+            rotX += (ty - touchStartY) * 0.005;
+            rotX = Math.max(0.1, Math.min(Math.PI - 0.1, rotX));
+            touchStartX = tx; touchStartY = ty;
+            updateCamera();
+        } else if (touchMode === 'pinch-pan' && e.touches.length === 2) {
+            // Pinch to zoom
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            distance += (touchStartDist - dist) * 0.02;
+            distance = Math.max(1, Math.min(20, distance));
+            touchStartDist = dist;
+
+            // Two-finger pan
+            const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            targetX -= (mx - touchStartX) * 0.005;
+            targetZ -= (my - touchStartY) * 0.005;
+            touchStartX = mx; touchStartY = my;
+            updateCamera();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => { touchMode = ''; });
+
     window.addEventListener('resize', () => {
         renderer.setSize(canvas.clientWidth, canvas.clientHeight);
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
