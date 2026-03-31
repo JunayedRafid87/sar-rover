@@ -1456,8 +1456,10 @@ function initViewer() {
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x0d1117);
+    window.threeRenderer = renderer;
 
     scene = new THREE.Scene();
+    window.threeScene = scene;
     scene.fog = new THREE.Fog(0x0d1117, 15, 30);
 
     camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
@@ -2080,7 +2082,9 @@ document.getElementById('theme-toggle').addEventListener('click',function(){
         // Update 3D viewer background
         if(window.threeRenderer){
             var isLight=document.body.classList.contains('light-mode');
-            window.threeRenderer.setClearColor(isLight?0xf0f0f0:0x0a0e1a);
+            var c=isLight?0xf0f0f0:0x0d1117;
+            window.threeRenderer.setClearColor(c);
+            if(window.threeScene) window.threeScene.fog=new THREE.Fog(c,15,30);
         }
         setTimeout(function(){overlay.classList.remove('active')},400);
     },300);
