@@ -1111,13 +1111,16 @@
 
         /* ─── Custom Scrollbars ─── */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { 
-            background: rgba(var(--scroll-anim-rgb, 6, 182, 212), 0.65); 
+            background: transparent; 
             border-radius: 4px; 
         }
         ::-webkit-scrollbar-thumb:hover { 
-            background: rgba(var(--scroll-anim-rgb, 6, 182, 212), 1); 
+            background: rgba(var(--approach-rgb, 6, 182, 212), 0.5); 
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: rgba(var(--approach-rgb, 6, 182, 212), 0.9);
         }
 
         /* Rotate button active state */
@@ -2492,33 +2495,6 @@ function initImageFadeIn() {
         else img.addEventListener('load', () => img.classList.add('loaded'));
         // Fallback for errors
         img.addEventListener('error', () => img.classList.add('loaded'));
-    });
-}
-
-// ─── Animated Scrollbar ───
-function initAnimatedScrollbar() {
-    let t = 0;
-    const colors = [
-        {r: 34, g: 197, b: 94},  // Green
-        {r: 59, g: 130, b: 246}, // Blue
-        {r: 168, g: 85, b: 247}, // Purple
-        {r: 249, g: 115, b: 22}  // Orange
-    ];
-    function cycle() {
-        t += 0.005;
-        const segment = t % colors.length;
-        const i1 = Math.floor(segment);
-        const i2 = (i1 + 1) % colors.length;
-        const frac = segment - i1;
-        
-        const r = Math.round(colors[i1].r + (colors[i2].r - colors[i1].r) * frac);
-        const g = Math.round(colors[i1].g + (colors[i2].g - colors[i1].g) * frac);
-        const b = Math.round(colors[i1].b + (colors[i2].b - colors[i1].b) * frac);
-        
-        document.documentElement.style.setProperty('--scroll-anim-rgb', `${r}, ${g}, ${b}`);
-        requestAnimationFrame(cycle);
-    }
-    requestAnimationFrame(cycle);
 }
 
 // Init
@@ -2536,7 +2512,6 @@ window.addEventListener('DOMContentLoaded', () => {
     initLightbox();
     initHamburger();
     initImageFadeIn();
-    initAnimatedScrollbar();
 });
 </script>
 
