@@ -2911,6 +2911,120 @@ function updateChartTheme(isLight) {
         setTimeout(() => { if(matrixState !== 0) { msg.style.color = '#fff'; msg.style.textShadow = '0 0 40px rgba(255,255,255,0.5)'; } }, 1100);
     }
 })();
+
+// ─── "CATS" Easter Egg ───
+(function(){
+    const codes = { cats: ['c','a','t','s'], gone: ['g','o','n','e'] };
+    let pos = { cats: 0, gone: 0 };
+    let isCatMode = false;
+    let catInterval = null;
+    let overlay = null;
+
+    document.addEventListener('keydown', function(e) {
+        const key = e.key.toLowerCase();
+        for (let cmd in codes) {
+            if (key === codes[cmd][pos[cmd]]) {
+                pos[cmd]++;
+                if (pos[cmd] === codes[cmd].length) {
+                    pos[cmd] = 0;
+                    if (cmd === 'cats') triggerCats();
+                    if (cmd === 'gone') triggerGone();
+                }
+            } else {
+                pos[cmd] = 0;
+            }
+        }
+    });
+
+    const emojis = ['🐈', '🐈‍⬛', '🧶', '🐁', '📦', '🐟'];
+    
+    function triggerCats() {
+        if (isCatMode) return;
+        isCatMode = true;
+        
+        overlay = document.createElement('div');
+        overlay.id = 'cat-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999998;pointer-events:none;overflow:hidden;';
+        document.body.appendChild(overlay);
+
+        if (!document.getElementById('cat-style')) {
+            const style = document.createElement('style');
+            style.id = 'cat-style';
+            style.innerHTML = `
+                @keyframes catWalk { 0% { transform: translate(-100px, 0) rotate(0deg); } 100% { transform: translate(110vw, 0) rotate(0deg); } }
+                @keyframes dropBounce { 0% { transform: translateY(-100px); } 60% { transform: translateY(calc(100vh - 100px)); } 80% { transform: translateY(calc(100vh - 150px)); } 100% { transform: translateY(calc(100vh - 100px)); } }
+                .cat-entity { position: absolute; font-size: 3rem; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4)); user-select: none; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        catInterval = setInterval(() => {
+            if (!isCatMode) return;
+            const el = document.createElement('div');
+            el.classList.add('cat-entity');
+            el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            const animType = Math.random();
+            const top = Math.random() * 90;
+            
+            if (animType > 0.6) {
+                el.style.top = top + 'vh';
+                el.style.left = '-100px';
+                el.style.animation = `catWalk ${5 + Math.random() * 5}s linear forwards`;
+                if (Math.random() > 0.5) el.style.transform = 'scaleX(-1)';
+            } else if (animType > 0.3) {
+                el.style.top = '-100px';
+                el.style.left = Math.random() * 90 + 'vw';
+                const dur = 2 + Math.random() * 2;
+                el.style.animation = `dropBounce ${dur}s ease-out forwards`;
+            } else {
+                el.style.top = Math.random() * 90 + 'vh';
+                el.style.left = Math.random() * 90 + 'vw';
+                el.style.opacity = '0';
+                el.style.transition = 'opacity 0.5s';
+                setTimeout(() => el.style.opacity = '1', 50);
+            }
+            
+            // Limit to 200 elements to prevent excessive lag
+            if (overlay.childElementCount > 200) {
+               overlay.firstChild.remove();
+            }
+            overlay.appendChild(el);
+            
+            if (Math.random() > 0.95 && window.AudioContext) {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (ctx.state === 'suspended') ctx.resume();
+                    const o = ctx.createOscillator(), g = ctx.createGain();
+                    o.type = 'sine'; o.frequency.setValueCurveAtTime([800, 1200, 900], ctx.currentTime, 0.4);
+                    g.gain.setValueAtTime(0.01, ctx.currentTime); g.gain.linearRampToValueAtTime(0, ctx.currentTime+0.4);
+                    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.4);
+                } catch(e) {}
+            }
+        }, 150); // fast spawning
+    }
+
+    function triggerGone() {
+        if (!isCatMode) return;
+        isCatMode = false;
+        if (catInterval) clearInterval(catInterval);
+        if (overlay) {
+            overlay.style.transition = 'opacity 1s';
+            overlay.style.opacity = '0';
+            setTimeout(() => { if (overlay) overlay.remove(); overlay = null; }, 1000);
+        }
+        try {
+            if(window.AudioContext) {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') ctx.resume();
+                const o = ctx.createOscillator(), g = ctx.createGain();
+                o.type = 'sawtooth'; o.frequency.setValueCurveAtTime([2000, 100], ctx.currentTime, 0.5);
+                g.gain.setValueAtTime(0.05, ctx.currentTime); g.gain.linearRampToValueAtTime(0, ctx.currentTime+0.5);
+                o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.5);
+            }
+        } catch(e) {}
+    }
+})();
 </script>
 </body>
 </html>
