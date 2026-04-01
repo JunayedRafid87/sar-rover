@@ -1806,7 +1806,7 @@ let currentApproach = 1;
 function initViewer() {
     const canvas = document.getElementById('viewer3d');
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x0d1117);
     window.threeRenderer = renderer;
@@ -1903,7 +1903,7 @@ function initViewer() {
     canvas.addEventListener('touchend', () => { touchMode = ''; });
 
     window.addEventListener('resize', () => {
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     });
@@ -2314,7 +2314,7 @@ function toggleFullscreen() {
 function resizeViewer() {
     setTimeout(() => {
         const canvas = document.getElementById('viewer3d');
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     }, 150);
