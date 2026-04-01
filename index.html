@@ -2827,7 +2827,141 @@ function updateChartTheme(isLight) {
         } else {
             pos = 0;
         }
+        }
     });
+})();
+
+// ─── 3D Parallax "Glass" Hologram Cards ───
+(function(){
+    if (window.matchMedia("(pointer: coarse)").matches) return; // skip for touch devices
+    const cards = document.querySelectorAll('.method-card, .team-card, .info-card, .perf-card, .ml-limitations, .proteus-img-card');
+    cards.forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -8;
+            const rotateY = ((x - centerX) / centerX) * 8;
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+            card.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)';
+            setTimeout(() => { card.style.transition = ''; }, 500);
+        });
+    });
+})();
+
+// ─── Sci-Fi UI Audio Engine ───
+(function(){
+    let audioCtx = null;
+    let audioEnabled = false;
+
+    function initCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        audioEnabled = true;
+    }
+    // Need user interaction to unlock audio context in browsers
+    document.addEventListener('click', initCtx, { once: true });
+
+    function playBeep(freq, type, duration, vol) {
+        if (!audioEnabled || !audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    document.querySelectorAll('.approach-tab, .viewer-btn, .nav-links a, .proteus-tab, .section-dot').forEach(btn => {
+        btn.addEventListener('mouseenter', () => playBeep(900, 'sine', 0.05, 0.015));
+        btn.addEventListener('click', () => playBeep(1400, 'square', 0.1, 0.03));
+    });
+})();
+
+// ─── "SUDO" / "HACK" Matrix Overload Easter Egg ───
+(function(){
+    const codes = [ ['s','u','d','o'], ['h','a','c','k'] ];
+    let pos = [0, 0];
+    
+    document.addEventListener('keydown', function(e) {
+        const key = e.key.toLowerCase();
+        for (let i = 0; i < codes.length; i++) {
+            if (key === codes[i][pos[i]]) {
+                pos[i]++;
+                if (pos[i] === codes[i].length) {
+                    pos = [0, 0];
+                    triggerMatrix();
+                }
+            } else {
+                pos[i] = 0;
+            }
+        }
+    });
+
+    function triggerMatrix() {
+        if (document.getElementById('matrix-overlay')) return;
+        const canvas = document.createElement('canvas');
+        canvas.id = 'matrix-overlay';
+        canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999999;background:#000;pointer-events:none;opacity:0;transition:opacity 0.2s';
+        document.body.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        
+        requestAnimationFrame(() => canvas.style.opacity = '1');
+        
+        // Crazy synthetic hack sound
+        if(window.AudioContext && audioEnabled) {
+            const ctxA = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctxA.createOscillator(), g = ctxA.createGain();
+            o.type= 'sawtooth'; o.frequency.setValueCurveAtTime([150,50,400,20,800], ctxA.currentTime, 3.0);
+            g.gain.setValueAtTime(0.04, ctxA.currentTime); g.gain.linearRampToValueAtTime(0, ctxA.currentTime+3.0);
+            o.connect(g); g.connect(ctxA.destination); o.start(); o.stop(ctxA.currentTime+3.0);
+        }
+
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%""\'#&_(),.;:?!\\|{}<>[]^~'.split('');
+        const fontSize = 16;
+        const drops = Array.from({length: canvas.width/fontSize}).fill(1);
+
+        const drawInfo = setInterval(() => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }, 33);
+        
+        const msg = document.createElement('div');
+        msg.innerHTML = "ROOT ACCESS GRANTED<br><span style='font-size:1.5rem;color:rgba(0,255,0,0.7)'>OVERRIDING SPATIAL MAP...</span>";
+        msg.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#0F0;font-family:monospace;font-size:3rem;font-weight:bold;z-index:99999999;text-align:center;text-shadow:0 0 20px #0F0;pointer-events:none;opacity:0;transition:opacity 0.2s;letter-spacing:5px;";
+        document.body.appendChild(msg);
+        
+        requestAnimationFrame(() => msg.style.opacity = '1');
+        setTimeout(() => { msg.style.color = 'red'; msg.style.textShadow = '0 0 20px red'; }, 800);
+        setTimeout(() => { msg.style.color = '#0F0'; msg.style.textShadow = '0 0 20px #0F0'; }, 1100);
+
+        setTimeout(() => {
+            clearInterval(drawInfo);
+            canvas.style.transition = 'opacity 0.8s';
+            msg.style.transition = 'opacity 0.8s';
+            canvas.style.opacity = '0';
+            msg.style.opacity = '0';
+            setTimeout(() => { canvas.remove(); msg.remove(); }, 800);
+        }, 3000);
+    }
 })();
 </script>
 </body>
