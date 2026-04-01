@@ -2827,7 +2827,6 @@ function updateChartTheme(isLight) {
         } else {
             pos = 0;
         }
-        }
     });
 })();
 
@@ -2930,11 +2929,16 @@ function updateChartTheme(isLight) {
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%""\'#&_(),.;:?!\\|{}<>[]^~'.split('');
         const fontSize = 16;
         const drops = Array.from({length: canvas.width/fontSize}).fill(1);
+        
+        const matrixGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        matrixGrad.addColorStop(0, '#22c55e');
+        matrixGrad.addColorStop(0.5, '#f97316');
+        matrixGrad.addColorStop(1, '#8b5cf6');
 
         const drawInfo = setInterval(() => {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#0F0';
+            ctx.fillStyle = matrixGrad;
             ctx.font = fontSize + 'px monospace';
             for (let i = 0; i < drops.length; i++) {
                 const text = letters[Math.floor(Math.random() * letters.length)];
@@ -2945,13 +2949,13 @@ function updateChartTheme(isLight) {
         }, 33);
         
         const msg = document.createElement('div');
-        msg.innerHTML = "ROOT ACCESS GRANTED<br><span style='font-size:1.5rem;color:rgba(0,255,0,0.7)'>OVERRIDING SPATIAL MAP...</span>";
-        msg.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#0F0;font-family:monospace;font-size:3rem;font-weight:bold;z-index:99999999;text-align:center;text-shadow:0 0 20px #0F0;pointer-events:none;opacity:0;transition:opacity 0.2s;letter-spacing:5px;";
+        msg.innerHTML = "ROOT ACCESS GRANTED<br><span style='font-size:1.5rem;color:transparent;background:linear-gradient(90deg, #22c55e, #f97316, #8b5cf6);-webkit-background-clip:text;'>OVERRIDING SPATIAL MAP...</span>";
+        msg.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-family:monospace;font-size:3rem;font-weight:bold;z-index:99999999;text-align:center;text-shadow:0 0 40px rgba(255,255,255,0.5);pointer-events:none;opacity:0;transition:opacity 0.2s;letter-spacing:5px;";
         document.body.appendChild(msg);
         
         requestAnimationFrame(() => msg.style.opacity = '1');
         setTimeout(() => { msg.style.color = 'red'; msg.style.textShadow = '0 0 20px red'; }, 800);
-        setTimeout(() => { msg.style.color = '#0F0'; msg.style.textShadow = '0 0 20px #0F0'; }, 1100);
+        setTimeout(() => { msg.style.color = '#fff'; msg.style.textShadow = '0 0 40px rgba(255,255,255,0.5)'; }, 1100);
 
         setTimeout(() => {
             clearInterval(drawInfo);
