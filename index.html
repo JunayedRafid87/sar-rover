@@ -499,16 +499,24 @@
         .method-card:hover {
             transform: translateY(-4px);
         }
-        .method-card:nth-child(1):hover { box-shadow: 0 15px 40px rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); }
-        .method-card:nth-child(2):hover { box-shadow: 0 15px 40px rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.3); }
-        .method-card:nth-child(3):hover { box-shadow: 0 15px 40px rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3); }
+        /* Approach-specific hover glows — scoped by panel ID */
+        #approach-1 .method-card:hover,
+        .method-grid > .method-card:nth-child(1):hover { box-shadow: 0 15px 40px rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.3); }
+        #approach-2 .method-card:hover,
+        .method-grid > .method-card:nth-child(2):hover { box-shadow: 0 15px 40px rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.3); }
+        #approach-3 .method-card:hover,
+        .method-grid > .method-card:nth-child(3):hover { box-shadow: 0 15px 40px rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3); }
         .method-card::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0;
             height: 3px;
         }
-        .method-card:nth-child(1)::before { background: var(--gradient-lidar); }
-        .method-card:nth-child(2)::before { background: var(--gradient-rgbd); }
-        .method-card:nth-child(3)::before { background: var(--gradient-hybrid); }
+        /* Approach-specific top border gradients — scoped by panel ID */
+        #approach-1 .method-card::before,
+        .method-grid > .method-card:nth-child(1)::before { background: var(--gradient-lidar); }
+        #approach-2 .method-card::before,
+        .method-grid > .method-card:nth-child(2)::before { background: var(--gradient-rgbd); }
+        #approach-3 .method-card::before,
+        .method-grid > .method-card:nth-child(3)::before { background: var(--gradient-hybrid); }
         .method-card .method-num {
             font-size: 3rem; font-weight: 900; opacity: 0.08;
             position: absolute; top: 10px; right: 20px;
@@ -527,9 +535,24 @@
             padding: 6px 0; color: var(--text-secondary); font-size: 0.88rem;
             display: flex; align-items: center; gap: 8px;
         }
-        .method-card ul li::before {
-            content: '▸'; color: var(--accent-cyan); font-weight: 700;
-        }
+        /* Sensor text + bullet color per approach */
+        #approach-1 .method-sensor,
+        .method-card:nth-child(1) .method-sensor { color: #22c55e; }
+        #approach-2 .method-sensor,
+        .method-card:nth-child(2) .method-sensor { color: #f97316; }
+        #approach-3 .method-sensor,
+        .method-card:nth-child(3) .method-sensor { color: #8b5cf6; }
+        .method-card ul li::before { content: '▸'; font-weight: 700; }
+        #approach-1 .method-card ul li::before,
+        .method-card:nth-child(1) ul li::before { color: #22c55e; }
+        #approach-2 .method-card ul li::before,
+        .method-card:nth-child(2) ul li::before { color: #f97316; }
+        #approach-3 .method-card ul li::before,
+        .method-card:nth-child(3) ul li::before { color: #8b5cf6; }
+        /* Persistent border tint per approach */
+        #approach-1 .method-card { border-color: rgba(34,197,94,0.25); }
+        #approach-2 .method-card { border-color: rgba(249,115,22,0.25); }
+        #approach-3 .method-card { border-color: rgba(139,92,246,0.25); }
 
         /* ─── Proteus Section ─── */
         .proteus-tabs {
