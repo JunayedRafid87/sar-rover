@@ -676,6 +676,7 @@
             gap: 12px; margin-top: 32px;
         }
         .component-chip {
+            position: relative;
             background: var(--bg-card); border: 1px solid var(--border-color);
             border-radius: var(--radius-sm); padding: 14px 18px;
             text-align: center; font-size: 0.85rem; font-weight: 600;
@@ -686,8 +687,27 @@
             color: rgba(var(--approach-rgb), 1);
             box-shadow: 0 4px 18px rgba(var(--approach-rgb), 0.18);
             transform: translateY(-2px);
+            z-index: 10;
         }
         .component-chip .chip-icon { font-size: 1.3rem; display: block; margin-bottom: 6px; }
+        .component-chip::after {
+            content: attr(data-tooltip);
+            position: absolute; bottom: 110%; left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(var(--approach-rgb), 0.4);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            color: #f8fafc; padding: 10px 14px; border-radius: 8px;
+            font-size: 0.75rem; font-weight: 500;
+            line-height: 1.4; white-space: normal;
+            width: max-content; max-width: 220px;
+            pointer-events: none; opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .component-chip:hover::after {
+            opacity: 1; transform: translateX(-50%) translateY(0);
+        }
 
         /* ─── ML Section ─── */
         .ml-hero-stats {
@@ -1511,13 +1531,13 @@
         </div>
 
         <div class="proteus-components">
-            <div class="component-chip"><span class="chip-icon">🧠</span>Arduino Mega 2560</div>
-            <div class="component-chip"><span class="chip-icon">⚙️</span>TB6612FNG Driver</div>
-            <div class="component-chip proteus-stepper"><span class="chip-icon">🔄</span>Stepper Motor</div>
-            <div class="component-chip"><span class="chip-icon">🏎️</span>DC Motors</div>
-            <div class="component-chip"><span class="chip-icon">💨</span>MQ-135 Air Sensor</div>
-            <div class="component-chip"><span class="chip-icon">🔥</span>MQ-4 Methane</div>
-            <div class="component-chip"><span class="chip-icon">☁️</span>MQ-7 CO Sensor</div>
+            <div class="component-chip" data-tooltip="Core processing unit for motor control, kinematics, and serial coordination over ROS 2 bridge."><span class="chip-icon">🧠</span>Arduino Mega 2560</div>
+            <div class="component-chip" data-tooltip="Dual H-bridge motor driver supplying continuous fast torque to the DC motors."><span class="chip-icon">⚙️</span>TB6612FNG Driver</div>
+            <div class="component-chip proteus-stepper" data-tooltip="Precise 360° continuously rotating base used to pan the LiDAR or Depth sensor."><span class="chip-icon">🔄</span>Stepper Motor</div>
+            <div class="component-chip" data-tooltip="Holonomic rover drivetrain with encoders for precise odometry and localized movement."><span class="chip-icon">🏎️</span>DC Motors</div>
+            <div class="component-chip" data-tooltip="Detects harmful air quality drops and toxic gases to alert rescue operators."><span class="chip-icon">💨</span>MQ-135 Air Sensor</div>
+            <div class="component-chip" data-tooltip="Detects combustible methane (CH4) concentrations for explosive hazard avoidance."><span class="chip-icon">🔥</span>MQ-4 Methane</div>
+            <div class="component-chip" data-tooltip="Monitors Carbon Monoxide (CO) to ensure safety in burning or poorly ventilated ruins."><span class="chip-icon">☁️</span>MQ-7 CO Sensor</div>
         </div>
     </div>
 </section>
@@ -1743,6 +1763,7 @@ const APPROACHES = {
 let scene, camera, renderer, controls, currentCloud, autoRotate = false;
 let mouseDown = false, mouseX = 0, mouseY = 0;
 let rotX = 0.6, rotY = 0, distance = 6, targetX = 0, targetY = 0, targetZ = 0;
+let currRotX = 0.6, currRotY = 0, currDistance = 6, currTargetX = 0, currTargetY = 0, currTargetZ = 0;
 let currentApproach = 1;
 
 function initViewer() {
@@ -1854,28 +1875,6 @@ function initViewer() {
     animate();
 }
 
-function updateCamera() {
-    camera.position.set(
-        targetX + distance * Math.sin(rotX) * Math.sin(rotY),
-        targetY + distance * Math.cos(rotX),
-        targetZ + distance * Math.sin(rotX) * Math.cos(rotY)
-    );
-    camera.lookAt(targetX, targetY, targetZ);
-}
-
-function resetCamera(approach) {
-    var cam = (approach && APPROACHES[approach] && APPROACHES[approach].cam)
-        ? APPROACHES[approach].cam
-        : { rotX: 0.6, rotY: 0, distance: 6 };
-    rotX = cam.rotX; rotY = cam.rotY; distance = cam.distance;
-    targetX = 0; targetY = 0; targetZ = 0;
-    updateCamera();
-}
-
-function toggleAutoRotate() {
-    autoRotate = !autoRotate;
-}
-
 function animate() {
     requestAnimationFrame(animate);
     // Skip rendering when viewer is off-screen
@@ -1884,8 +1883,39 @@ function animate() {
         var rect = canvas.getBoundingClientRect();
         if (rect.bottom < 0 || rect.top > window.innerHeight) return;
     }
-    if (autoRotate) { rotY += 0.005; updateCamera(); }
+    if (autoRotate) { rotY += 0.005; }
+    updateCamera();
     renderer.render(scene, camera);
+}
+
+function updateCamera() {
+    // Lerp current values towards target values for smooth camera movement
+    currRotX += (rotX - currRotX) * 0.1;
+    currRotY += (rotY - currRotY) * 0.1;
+    currDistance += (distance - currDistance) * 0.1;
+    currTargetX += (targetX - currTargetX) * 0.1;
+    currTargetY += (targetY - currTargetY) * 0.1;
+    currTargetZ += (targetZ - currTargetZ) * 0.1;
+
+    camera.position.set(
+        currTargetX + currDistance * Math.sin(currRotX) * Math.sin(currRotY),
+        currTargetY + currDistance * Math.cos(currRotX),
+        currTargetZ + currDistance * Math.sin(currRotX) * Math.cos(currRotY)
+    );
+    camera.lookAt(currTargetX, currTargetY, currTargetZ);
+}
+
+function resetCamera(approach) {
+    var cam = (approach && APPROACHES[approach] && APPROACHES[approach].cam)
+        ? APPROACHES[approach].cam
+        : { rotX: 0.6, rotY: 0, distance: 6 };
+    rotX = cam.rotX; rotY = cam.rotY; distance = cam.distance;
+    targetX = 0; targetY = 0; targetZ = 0;
+    // updateCamera() is now continuously called in animate()
+}
+
+function toggleAutoRotate() {
+    autoRotate = !autoRotate;
 }
 
 function loadPLY(approach) {
