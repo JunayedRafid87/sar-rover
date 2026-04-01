@@ -2804,6 +2804,8 @@ function updateChartTheme(isLight) {
 (function(){
     const codes = [ ['s','u','d','o'], ['h','a','c','k'] ];
     let pos = [0, 0];
+    let isMatrixActive = false;
+    let drawInterval = null;
     
     document.addEventListener('keydown', function(e) {
         const key = e.key.toLowerCase();
@@ -2812,7 +2814,11 @@ function updateChartTheme(isLight) {
                 pos[i]++;
                 if (pos[i] === codes[i].length) {
                     pos = [0, 0];
-                    triggerMatrix();
+                    if (isMatrixActive) {
+                        stopMatrix();
+                    } else {
+                        triggerMatrix();
+                    }
                 }
             } else {
                 pos[i] = 0;
@@ -2820,8 +2826,28 @@ function updateChartTheme(isLight) {
         }
     });
 
+    function stopMatrix() {
+        isMatrixActive = false;
+        if (drawInterval) clearInterval(drawInterval);
+        const canvas = document.getElementById('matrix-overlay');
+        const msg = document.getElementById('matrix-msg');
+        if (canvas) {
+            canvas.style.transition = 'opacity 0.8s';
+            canvas.style.opacity = '0';
+        }
+        if (msg) {
+            msg.style.transition = 'opacity 0.8s';
+            msg.style.opacity = '0';
+        }
+        setTimeout(() => { 
+            if (canvas) canvas.remove(); 
+            if (msg) msg.remove(); 
+        }, 800);
+    }
+
     function triggerMatrix() {
         if (document.getElementById('matrix-overlay')) return;
+        isMatrixActive = true;
         const canvas = document.createElement('canvas');
         canvas.id = 'matrix-overlay';
         canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999999;background:#000;pointer-events:none;opacity:0;transition:opacity 0.2s';
@@ -2831,15 +2857,15 @@ function updateChartTheme(isLight) {
         
         requestAnimationFrame(() => canvas.style.opacity = '1');
         
-        // Crazy synthetic hack sound
+        // Crazy synthetic hack sound (play startup sequence)
         try {
             if(window.AudioContext) {
                 const ctxA = new (window.AudioContext || window.webkitAudioContext)();
                 if (ctxA.state === 'suspended') ctxA.resume();
                 const o = ctxA.createOscillator(), g = ctxA.createGain();
-                o.type= 'sawtooth'; o.frequency.setValueCurveAtTime([150,50,400,20,800], ctxA.currentTime, 3.0);
-                g.gain.setValueAtTime(0.04, ctxA.currentTime); g.gain.linearRampToValueAtTime(0, ctxA.currentTime+3.0);
-                o.connect(g); g.connect(ctxA.destination); o.start(); o.stop(ctxA.currentTime+3.0);
+                o.type = 'sawtooth'; o.frequency.setValueCurveAtTime([150,50,400,20,800,150], ctxA.currentTime, 4.0);
+                g.gain.setValueAtTime(0.04, ctxA.currentTime); g.gain.linearRampToValueAtTime(0, ctxA.currentTime+4.0);
+                o.connect(g); g.connect(ctxA.destination); o.start(); o.stop(ctxA.currentTime+4.0);
             }
         } catch(e) { console.warn("Matrix Audio prevented by browser."); }
 
@@ -2852,7 +2878,7 @@ function updateChartTheme(isLight) {
         matrixGrad.addColorStop(0.5, '#f97316');
         matrixGrad.addColorStop(1, '#8b5cf6');
 
-        const drawInfo = setInterval(() => {
+        drawInterval = setInterval(() => {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = matrixGrad;
@@ -2866,22 +2892,14 @@ function updateChartTheme(isLight) {
         }, 33);
         
         const msg = document.createElement('div');
-        msg.innerHTML = "ROOT ACCESS GRANTED<br><span style='font-size:1.5rem;color:transparent;background:linear-gradient(90deg, #22c55e, #f97316, #8b5cf6);-webkit-background-clip:text;'>OVERRIDING SPATIAL MAP...</span>";
+        msg.id = 'matrix-msg';
+        msg.innerHTML = "ROOT ACCESS GRANTED<br><span style='font-size:1.5rem;color:transparent;background:linear-gradient(90deg, #22c55e, #f97316, #8b5cf6);-webkit-background-clip:text;'>OVERRIDING SPATIAL MAP...</span><br><br><span style='font-size:1rem;color:#888;font-weight:normal;font-family:sans-serif;letter-spacing:1px;opacity:0.7;'>(TYPE <b>SUDO</b> TO ABORT)</span>";
         msg.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-family:monospace;font-size:3rem;font-weight:bold;z-index:99999999;text-align:center;text-shadow:0 0 40px rgba(255,255,255,0.5);pointer-events:none;opacity:0;transition:opacity 0.2s;letter-spacing:5px;";
         document.body.appendChild(msg);
         
         requestAnimationFrame(() => msg.style.opacity = '1');
-        setTimeout(() => { msg.style.color = 'red'; msg.style.textShadow = '0 0 20px red'; }, 800);
-        setTimeout(() => { msg.style.color = '#fff'; msg.style.textShadow = '0 0 40px rgba(255,255,255,0.5)'; }, 1100);
-
-        setTimeout(() => {
-            clearInterval(drawInfo);
-            canvas.style.transition = 'opacity 0.8s';
-            msg.style.transition = 'opacity 0.8s';
-            canvas.style.opacity = '0';
-            msg.style.opacity = '0';
-            setTimeout(() => { canvas.remove(); msg.remove(); }, 800);
-        }, 3000);
+        setTimeout(() => { if(isMatrixActive) { msg.style.color = 'red'; msg.style.textShadow = '0 0 20px red'; } }, 800);
+        setTimeout(() => { if(isMatrixActive) { msg.style.color = '#fff'; msg.style.textShadow = '0 0 40px rgba(255,255,255,0.5)'; } }, 1100);
     }
 })();
 </script>
