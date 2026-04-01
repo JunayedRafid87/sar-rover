@@ -363,7 +363,6 @@
         .viewer-canvas {
             width: 100%; height: 500px; border-radius: var(--radius);
             cursor: grab; display: block;
-            transition: box-shadow 0.5s ease;
         }
         .viewer-canvas:active { cursor: grabbing; }
         .viewer-loader {
@@ -418,7 +417,7 @@
             border-radius: var(--radius-sm); padding: 20px;
             transition: all 0.3s;
         }
-        .info-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.12); }
+        .info-card:hover { transform: translateY(-3px); }
         .info-card .info-label {
             color: var(--text-muted); font-size: 0.78rem; font-weight: 600;
             text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
@@ -1950,11 +1949,24 @@ function switchApproach(n) {
     currentApproach = n;
     loadPLY(n);
     resetCamera(n);
-    // Update 3D viewer underglow to match approach color
-    var glowColors = { 1: '34,197,94', 2: '249,115,22', 3: '139,92,246' };
-    var rgb = glowColors[n] || '6,182,212';
-    var canvas = document.getElementById('viewer3d');
-    if (canvas) canvas.style.boxShadow = '0 8px 40px rgba(' + rgb + ',0.35), 0 0 0 1px rgba(' + rgb + ',0.2)';
+    // Update 3D viewer + info card glow to match approach color
+    var glowMap = {
+        1: { rgb: '34,197,94' },
+        2: { rgb: '249,115,22' },
+        3: { rgb: '139,92,246' }
+    };
+    var g = glowMap[n] || { rgb: '6,182,212' };
+    var rgb = g.rgb;
+    var container = document.querySelector('.viewer-container');
+    if (container) {
+        container.style.transition = 'box-shadow 0.5s ease';
+        container.style.boxShadow = '0 0 40px rgba(' + rgb + ',0.35), 0 0 0 1px rgba(' + rgb + ',0.25)';
+    }
+    document.querySelectorAll('.info-card').forEach(function(card) {
+        card.style.transition = 'border-color 0.5s ease, box-shadow 0.5s ease';
+        card.style.borderColor = 'rgba(' + rgb + ',0.3)';
+        card.style.boxShadow = '0 4px 20px rgba(' + rgb + ',0.1)';
+    });
 }
 
 // ─── Chart.js ───
@@ -2371,9 +2383,13 @@ function initHamburger() {
 // Init
 window.addEventListener('DOMContentLoaded', () => {
     initViewer();
-    // Set initial underglow for approach 1 (green)
-    var canvas3d = document.getElementById('viewer3d');
-    if (canvas3d) canvas3d.style.boxShadow = '0 8px 40px rgba(34,197,94,0.35), 0 0 0 1px rgba(34,197,94,0.2)';
+    // Set initial glow for approach 1 (green)
+    var vc = document.querySelector('.viewer-container');
+    if (vc) { vc.style.transition = 'box-shadow 0.5s ease'; vc.style.boxShadow = '0 0 40px rgba(34,197,94,0.35), 0 0 0 1px rgba(34,197,94,0.25)'; }
+    document.querySelectorAll('.info-card').forEach(function(c) {
+        c.style.borderColor = 'rgba(34,197,94,0.3)';
+        c.style.boxShadow = '0 4px 20px rgba(34,197,94,0.1)';
+    });
     initCharts();
     initMLCharts();
     initScrollReveal();
