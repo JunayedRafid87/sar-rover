@@ -875,7 +875,7 @@
         @keyframes themeSpin { to { transform: rotate(360deg); } }
 
         /* 3D viewer light mode */
-        body.light-mode .viewer-canvas { background: #888888; }
+        body.light-mode .viewer-canvas { background: #4a4a4a; }
 
         /* Performance: GPU acceleration for hover effects */
 
@@ -2416,7 +2416,7 @@ document.getElementById('theme-toggle').addEventListener('click',function(){
         // Update 3D viewer background
         if(window.threeRenderer){
             var isLight=document.body.classList.contains('light-mode');
-            var c = isLight ? 0x888888 : 0x0d1117;
+            var c = isLight ? 0x4a4a4a : 0x0d1117;
             window.threeRenderer.setClearColor(c);
             if(window.threeScene) window.threeScene.fog=new THREE.Fog(c,15,30);
         }
