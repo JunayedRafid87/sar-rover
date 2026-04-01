@@ -2804,8 +2804,12 @@ function updateChartTheme(isLight) {
 (function(){
     const codes = [ ['s','u','d','o'], ['h','a','c','k'] ];
     let pos = [0, 0];
-    let isMatrixActive = false;
+    let matrixState = 0; // 0 = off, 1 = english, 2 = japanese
     let drawInterval = null;
+    
+    let lettersArray = [];
+    const englishLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%""\'#&_(),.;:?!\\|{}<>[]^~'.split('');
+    const japaneseLetters = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789'.split('');
     
     document.addEventListener('keydown', function(e) {
         const key = e.key.toLowerCase();
@@ -2814,10 +2818,18 @@ function updateChartTheme(isLight) {
                 pos[i]++;
                 if (pos[i] === codes[i].length) {
                     pos = [0, 0];
-                    if (isMatrixActive) {
+                    matrixState = (matrixState + 1) % 3;
+                    if (matrixState === 0) {
                         stopMatrix();
-                    } else {
+                    } else if (matrixState === 1) {
+                        lettersArray = englishLetters;
                         triggerMatrix();
+                    } else if (matrixState === 2) {
+                        lettersArray = japaneseLetters;
+                        const msg = document.getElementById('matrix-msg');
+                        if (msg) {
+                            msg.innerHTML = "ROOT ACCESS GRANTED<br><span style='font-size:1.5rem;color:transparent;background:linear-gradient(90deg, #22c55e, #f97316, #8b5cf6);-webkit-background-clip:text;'>DECRYPTING CORE SPATIAL MAP...</span><br><br><span style='font-size:1rem;color:#888;font-weight:normal;font-family:sans-serif;letter-spacing:1px;opacity:0.7;'>(TYPE <b>SUDO</b> TO ABORT)</span>";
+                        }
                     }
                 }
             } else {
@@ -2827,7 +2839,6 @@ function updateChartTheme(isLight) {
     });
 
     function stopMatrix() {
-        isMatrixActive = false;
         if (drawInterval) clearInterval(drawInterval);
         const canvas = document.getElementById('matrix-overlay');
         const msg = document.getElementById('matrix-msg');
@@ -2847,7 +2858,6 @@ function updateChartTheme(isLight) {
 
     function triggerMatrix() {
         if (document.getElementById('matrix-overlay')) return;
-        isMatrixActive = true;
         const canvas = document.createElement('canvas');
         canvas.id = 'matrix-overlay';
         canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999999;background:#000;pointer-events:none;opacity:0;transition:opacity 0.2s';
@@ -2869,7 +2879,6 @@ function updateChartTheme(isLight) {
             }
         } catch(e) { console.warn("Matrix Audio prevented by browser."); }
 
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%""\'#&_(),.;:?!\\|{}<>[]^~'.split('');
         const fontSize = 16;
         const drops = Array.from({length: canvas.width/fontSize}).fill(1);
         
@@ -2884,7 +2893,7 @@ function updateChartTheme(isLight) {
             ctx.fillStyle = matrixGrad;
             ctx.font = fontSize + 'px monospace';
             for (let i = 0; i < drops.length; i++) {
-                const text = letters[Math.floor(Math.random() * letters.length)];
+                const text = lettersArray[Math.floor(Math.random() * lettersArray.length)];
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
                 if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
                 drops[i]++;
@@ -2893,13 +2902,13 @@ function updateChartTheme(isLight) {
         
         const msg = document.createElement('div');
         msg.id = 'matrix-msg';
-        msg.innerHTML = "ROOT ACCESS GRANTED<br><span style='font-size:1.5rem;color:transparent;background:linear-gradient(90deg, #22c55e, #f97316, #8b5cf6);-webkit-background-clip:text;'>OVERRIDING SPATIAL MAP...</span><br><br><span style='font-size:1rem;color:#888;font-weight:normal;font-family:sans-serif;letter-spacing:1px;opacity:0.7;'>(TYPE <b>SUDO</b> TO ABORT)</span>";
+        msg.innerHTML = "ROOT ACCESS GRANTED<br><span style='font-size:1.5rem;color:transparent;background:linear-gradient(90deg, #22c55e, #f97316, #8b5cf6);-webkit-background-clip:text;'>OVERRIDING SPATIAL MAP...</span><br><br><span style='font-size:1rem;color:#888;font-weight:normal;font-family:sans-serif;letter-spacing:1px;opacity:0.7;'>(TYPE <b>SUDO</b> TO DECRYPT)</span>";
         msg.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-family:monospace;font-size:3rem;font-weight:bold;z-index:99999999;text-align:center;text-shadow:0 0 40px rgba(255,255,255,0.5);pointer-events:none;opacity:0;transition:opacity 0.2s;letter-spacing:5px;";
         document.body.appendChild(msg);
         
         requestAnimationFrame(() => msg.style.opacity = '1');
-        setTimeout(() => { if(isMatrixActive) { msg.style.color = 'red'; msg.style.textShadow = '0 0 20px red'; } }, 800);
-        setTimeout(() => { if(isMatrixActive) { msg.style.color = '#fff'; msg.style.textShadow = '0 0 40px rgba(255,255,255,0.5)'; } }, 1100);
+        setTimeout(() => { if(matrixState !== 0) { msg.style.color = 'red'; msg.style.textShadow = '0 0 20px red'; } }, 800);
+        setTimeout(() => { if(matrixState !== 0) { msg.style.color = '#fff'; msg.style.textShadow = '0 0 40px rgba(255,255,255,0.5)'; } }, 1100);
     }
 })();
 </script>
