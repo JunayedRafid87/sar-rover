@@ -2099,15 +2099,59 @@ function initActiveNav() {
 // ─── Fullscreen Viewer ───
 function toggleFullscreen() {
     const section = document.querySelector('.viewer-section');
-    section.classList.toggle('fullscreen');
-    // Resize renderer when entering/exiting fullscreen
+    const isFs = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+
+    if (!isFs) {
+        // Enter fullscreen — try native API first
+        const req = section.requestFullscreen || section.webkitRequestFullscreen || section.mozRequestFullScreen || section.msRequestFullscreen;
+        if (req) {
+            req.call(section).catch(() => {
+                // API blocked (e.g. iOS Safari) — fall back to CSS
+                section.classList.add('fullscreen');
+                resizeViewer();
+            });
+        } else {
+            section.classList.add('fullscreen');
+            resizeViewer();
+        }
+    } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+        if (exit) exit.call(document);
+        section.classList.remove('fullscreen');
+        resizeViewer();
+    }
+}
+
+function resizeViewer() {
     setTimeout(() => {
         const canvas = document.getElementById('viewer3d');
         renderer.setSize(canvas.clientWidth, canvas.clientHeight);
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
-    }, 100);
+    }, 150);
 }
+
+// Sync CSS class when native fullscreen exits (e.g. pressing Esc)
+document.addEventListener('fullscreenchange', () => {
+    const section = document.querySelector('.viewer-section');
+    if (!document.fullscreenElement) {
+        section.classList.remove('fullscreen');
+        resizeViewer();
+    } else {
+        section.classList.add('fullscreen');
+        resizeViewer();
+    }
+});
+document.addEventListener('webkitfullscreenchange', () => {
+    const section = document.querySelector('.viewer-section');
+    if (!document.webkitFullscreenElement) {
+        section.classList.remove('fullscreen');
+        resizeViewer();
+    } else {
+        section.classList.add('fullscreen');
+        resizeViewer();
+    }
+});
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
