@@ -84,6 +84,12 @@
             border-color: rgba(var(--approach-rgb, 6,182,212), 0.8);
             background: rgba(var(--approach-rgb, 6,182,212), 0.1);
         }
+        .custom-cursor.active-yellow {
+            background: #facc15; box-shadow: 0 0 15px rgba(250, 204, 21, 0.8);
+        }
+        .cursor-trail.active-yellow {
+            border-color: rgba(250, 204, 21, 0.8); background: rgba(250, 204, 21, 0.1);
+        }
 
         /* Scroll Progress Bar */
         .scroll-progress { position:fixed;top:0;left:0;height:3px;z-index:10001;background:var(--gradient-primary);width:0%; }
@@ -2828,8 +2834,16 @@ function updateChartTheme(isLight) {
 
     const interactiveElements = document.querySelectorAll('a, button, .viewer-btn, .approach-tab, .proteus-tab, .section-dot, .viewer-canvas, .ml-version-tab');
     interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => { cursor.classList.add('active'); trail.classList.add('active'); });
-        el.addEventListener('mouseleave', () => { cursor.classList.remove('active'); trail.classList.remove('active'); });
+        el.addEventListener('mouseenter', () => { 
+            cursor.classList.add('active'); trail.classList.add('active'); 
+            if (el.classList.contains('ml-version-tab')) {
+                cursor.classList.add('active-yellow'); trail.classList.add('active-yellow');
+            }
+        });
+        el.addEventListener('mouseleave', () => { 
+            cursor.classList.remove('active'); trail.classList.remove('active'); 
+            cursor.classList.remove('active-yellow'); trail.classList.remove('active-yellow');
+        });
     });
 })();
 
