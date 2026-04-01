@@ -1117,10 +1117,18 @@
             border-radius: 4px; 
         }
         ::-webkit-scrollbar-thumb:hover { 
-            background: rgba(var(--approach-rgb, 6, 182, 212), 0.5); 
+            background: radial-gradient(
+                circle at 50% var(--scroll-grad-focus, 50%), 
+                rgba(var(--approach-rgb, 6, 182, 212), 1) 0%, 
+                rgba(var(--approach-rgb, 6, 182, 212), 0.2) 60%
+            );
         }
         ::-webkit-scrollbar-thumb:active {
-            background: rgba(var(--approach-rgb, 6, 182, 212), 0.9);
+            background: radial-gradient(
+                circle at 50% var(--scroll-grad-focus, 50%), 
+                rgba(var(--approach-rgb, 6, 182, 212), 1) 0%, 
+                rgba(var(--approach-rgb, 6, 182, 212), 0.5) 60%
+            );
         }
 
         /* Rotate button active state */
@@ -2495,6 +2503,19 @@ function initImageFadeIn() {
         else img.addEventListener('load', () => img.classList.add('loaded'));
         // Fallback for errors
         img.addEventListener('error', () => img.classList.add('loaded'));
+    });
+}
+
+// ─── Animated Scrollbar ───
+function initAnimatedScrollbar() {
+    let t = 0;
+    function cycle() {
+        t += 0.02;
+        const focus = (Math.sin(t) * 50) + 50; // Oscillates between 0 and 100
+        document.documentElement.style.setProperty('--scroll-grad-focus', `${focus}%`);
+        requestAnimationFrame(cycle);
+    }
+    requestAnimationFrame(cycle);
 }
 
 // Init
@@ -2512,6 +2533,7 @@ window.addEventListener('DOMContentLoaded', () => {
     initLightbox();
     initHamburger();
     initImageFadeIn();
+    initAnimatedScrollbar();
 });
 </script>
 
