@@ -593,8 +593,27 @@
             background: var(--bg-card); border: 1px solid var(--border-color);
             border-radius: var(--radius); overflow: hidden; transition: all 0.3s;
         }
+        /* Approach-colored border + glow on diagram/proteus image cards */
+        #approach-1 .proteus-img-card, #proteus-1 .proteus-img-card {
+            border-color: rgba(34,197,94,0.3);
+        }
+        #approach-2 .proteus-img-card, #proteus-2 .proteus-img-card {
+            border-color: rgba(249,115,22,0.3);
+        }
+        #approach-3 .proteus-img-card, #proteus-3 .proteus-img-card {
+            border-color: rgba(139,92,246,0.3);
+        }
         .proteus-img-card:hover {
-            transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: translateY(-3px);
+        }
+        #approach-1 .proteus-img-card:hover, #proteus-1 .proteus-img-card:hover {
+            box-shadow: 0 10px 35px rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.55);
+        }
+        #approach-2 .proteus-img-card:hover, #proteus-2 .proteus-img-card:hover {
+            box-shadow: 0 10px 35px rgba(249,115,22,0.2); border-color: rgba(249,115,22,0.55);
+        }
+        #approach-3 .proteus-img-card:hover, #proteus-3 .proteus-img-card:hover {
+            box-shadow: 0 10px 35px rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.55);
         }
         .proteus-img-card img {
             width: 100%; height: auto; display: block;
