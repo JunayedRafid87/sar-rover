@@ -393,16 +393,37 @@
         .viewer-loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             text-align: center; z-index: 5; pointer-events: none;
-            transition: opacity 0.5s;
+            transition: opacity 0.5s; perspective: 600px;
         }
         .viewer-loader.hidden { opacity: 0; }
-        .loader-spinner {
-            width: 48px; height: 48px; border: 3px solid var(--border-color);
-            border-top-color: var(--accent-cyan); border-radius: 50%;
-            animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+        .loader-cube {
+            width: 50px; height: 50px; margin: 0 auto 30px;
+            transform-style: preserve-3d;
+            animation: cubeSpin 3s linear infinite;
         }
-        .loader-text { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-face {
+            position: absolute; width: 100%; height: 100%;
+            background: rgba(var(--approach-rgb, 6,182,212), 0.15);
+            border: 1px solid rgba(var(--approach-rgb, 6,182,212), 1);
+            box-shadow: inset 0 0 12px rgba(var(--approach-rgb, 6,182,212), 0.4), 
+                        0 0 20px rgba(var(--approach-rgb, 6,182,212), 0.5);
+        }
+        .loader-face.front  { transform: rotateY(  0deg) translateZ(25px); }
+        .loader-face.back   { transform: rotateY(180deg) translateZ(25px); }
+        .loader-face.right  { transform: rotateY( 90deg) translateZ(25px); }
+        .loader-face.left   { transform: rotateY(-90deg) translateZ(25px); }
+        .loader-face.top    { transform: rotateX( 90deg) translateZ(25px); }
+        .loader-face.bottom { transform: rotateX(-90deg) translateZ(25px); }
+        @keyframes cubeSpin {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to   { transform: rotateX(360deg) rotateY(720deg); }
+        }
+        .loader-text { 
+            color: rgba(var(--approach-rgb, 6,182,212), 1); 
+            font-size: 0.85rem; font-weight: 600; text-transform: uppercase; 
+            letter-spacing: 2.5px; 
+            text-shadow: 0 0 15px rgba(var(--approach-rgb, 6,182,212), 0.8); 
+        }
         .viewer-overlay {
             position: absolute; top: 20px; left: 20px;
             display: flex; flex-direction: column; gap: 8px;
@@ -1274,8 +1295,15 @@
         <div class="viewer-container" style="position:relative;">
             <canvas id="viewer3d" class="viewer-canvas"></canvas>
             <div class="viewer-loader" id="viewer-loader">
-                <div class="loader-spinner"></div>
-                <div class="loader-text">Loading point cloud...</div>
+                <div class="loader-cube">
+                    <div class="loader-face front"></div>
+                    <div class="loader-face back"></div>
+                    <div class="loader-face right"></div>
+                    <div class="loader-face left"></div>
+                    <div class="loader-face top"></div>
+                    <div class="loader-face bottom"></div>
+                </div>
+                <div class="loader-text">Loading Framework...</div>
             </div>
             <div class="viewer-overlay">
                 <div class="viewer-tag" id="viewer-label">
