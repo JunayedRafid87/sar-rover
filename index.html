@@ -2317,6 +2317,10 @@ function switchApproachTab(n) {
         document.getElementById(id).classList.remove('active');
     });
     document.getElementById('approach-' + n).classList.add('active');
+    
+    // Sync --approach-rgb
+    var rgbMap = { 1: '34,197,94', 2: '249,115,22', 3: '139,92,246' };
+    document.documentElement.style.setProperty('--approach-rgb', rgbMap[n] || '6,182,212');
 }
 
 // ─── ML Version Switching ───
