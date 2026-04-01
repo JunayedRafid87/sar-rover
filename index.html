@@ -498,8 +498,10 @@
         }
         .method-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
         }
+        .method-card:nth-child(1):hover { box-shadow: 0 15px 40px rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); }
+        .method-card:nth-child(2):hover { box-shadow: 0 15px 40px rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.3); }
+        .method-card:nth-child(3):hover { box-shadow: 0 15px 40px rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3); }
         .method-card::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0;
             height: 3px;
@@ -541,8 +543,26 @@
         }
         .proteus-tab.active {
             color: var(--text-primary); background: var(--bg-card-hover);
-            border-color: rgba(6, 182, 212, 0.4); box-shadow: 0 0 25px rgba(6, 182, 212, 0.2);
         }
+        /* Per-approach tab glow colors */
+        .proteus-tab[data-approach="1"].active {
+            border-color: rgba(34,197,94,0.5);
+        }
+        .proteus-tab[data-approach="2"].active {
+            border-color: rgba(249,115,22,0.5);
+        }
+        .proteus-tab[data-approach="3"].active {
+            border-color: rgba(139,92,246,0.5);
+        }
+        /* Color dot inside tab */
+        .proteus-tab .tab-dot {
+            display: inline-block; width: 9px; height: 9px;
+            border-radius: 50%; margin-right: 8px; flex-shrink: 0;
+            vertical-align: middle;
+        }
+        .proteus-tab[data-approach="1"] .tab-dot { background: #22c55e; }
+        .proteus-tab[data-approach="2"] .tab-dot { background: #f97316; }
+        .proteus-tab[data-approach="3"] .tab-dot { background: #8b5cf6; }
         .proteus-content {
             display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
         }
@@ -832,18 +852,27 @@
         @media (max-width: 768px) { .section-nav { display: none; } }
 
         /* Animated glow on active tab */
-        @keyframes tabGlow {
-            0%, 100% { box-shadow: 0 0 10px rgba(6,182,212,0.2), 0 0 0 1px rgba(6,182,212,0.3); }
-            50%       { box-shadow: 0 0 22px rgba(6,182,212,0.45), 0 0 0 1px rgba(6,182,212,0.5); }
+        @keyframes tabGlowGreen {
+            0%,100% { box-shadow: 0 0 10px rgba(34,197,94,.2), 0 0 0 1px rgba(34,197,94,.3); }
+            50%      { box-shadow: 0 0 22px rgba(34,197,94,.5), 0 0 0 1px rgba(34,197,94,.55); }
         }
-        .proteus-tab.active {
-            animation: tabGlow 2.5s ease-in-out infinite;
+        @keyframes tabGlowOrange {
+            0%,100% { box-shadow: 0 0 10px rgba(249,115,22,.2), 0 0 0 1px rgba(249,115,22,.3); }
+            50%      { box-shadow: 0 0 22px rgba(249,115,22,.5), 0 0 0 1px rgba(249,115,22,.55); }
         }
+        @keyframes tabGlowPurple {
+            0%,100% { box-shadow: 0 0 10px rgba(139,92,246,.2), 0 0 0 1px rgba(139,92,246,.3); }
+            50%      { box-shadow: 0 0 22px rgba(139,92,246,.5), 0 0 0 1px rgba(139,92,246,.55); }
+        }
+        .proteus-tab[data-approach="1"].active { animation: tabGlowGreen  2.5s ease-in-out infinite; }
+        .proteus-tab[data-approach="2"].active { animation: tabGlowOrange 2.5s ease-in-out infinite; }
+        .proteus-tab[data-approach="3"].active { animation: tabGlowPurple 2.5s ease-in-out infinite; }
         body.light-mode .proteus-tab.active {
             animation: none;
-            box-shadow: 0 0 18px rgba(249,115,22,0.3);
-            border-color: rgba(249,115,22,0.5);
         }
+        body.light-mode .proteus-tab[data-approach="1"].active { box-shadow: 0 0 18px rgba(34,197,94,.35);  border-color: rgba(34,197,94,.5); }
+        body.light-mode .proteus-tab[data-approach="2"].active { box-shadow: 0 0 18px rgba(249,115,22,.35); border-color: rgba(249,115,22,.5); }
+        body.light-mode .proteus-tab[data-approach="3"].active { box-shadow: 0 0 18px rgba(139,92,246,.35); border-color: rgba(139,92,246,.5); }
 
         /* Chart containers adapt to light mode via filter */
         body.light-mode canvas { filter: none; }
@@ -1261,9 +1290,9 @@
         </div>
 
         <div class="proteus-tabs">
-            <div class="proteus-tab active" onclick="switchApproachTab(1)">🟢 Approach 1 — LiDAR</div>
-            <div class="proteus-tab" onclick="switchApproachTab(2)">🟠 Approach 2 — RGB-D</div>
-            <div class="proteus-tab" onclick="switchApproachTab(3)">🟣 Approach 3 — Hybrid</div>
+            <div class="proteus-tab active" data-approach="1" onclick="switchApproachTab(1)"><span class="tab-dot"></span>Approach 1 — LiDAR</div>
+            <div class="proteus-tab" data-approach="2" onclick="switchApproachTab(2)"><span class="tab-dot"></span>Approach 2 — RGB-D</div>
+            <div class="proteus-tab" data-approach="3" onclick="switchApproachTab(3)"><span class="tab-dot"></span>Approach 3 — Hybrid</div>
         </div>
 
         <div class="proteus-panel active" id="approach-1">
@@ -1340,9 +1369,9 @@
         </div>
 
         <div class="proteus-tabs">
-            <div class="proteus-tab active" onclick="switchProteus(1)">🔧 Approach 1 — LiDAR</div>
-            <div class="proteus-tab" onclick="switchProteus(2)">🔧 Approach 2 — RGB-D</div>
-            <div class="proteus-tab" onclick="switchProteus(3)">🔧 Approach 3 — Hybrid</div>
+            <div class="proteus-tab active" data-approach="1" onclick="switchProteus(1)"><span class="tab-dot"></span>Approach 1 — LiDAR</div>
+            <div class="proteus-tab" data-approach="2" onclick="switchProteus(2)"><span class="tab-dot"></span>Approach 2 — RGB-D</div>
+            <div class="proteus-tab" data-approach="3" onclick="switchProteus(3)"><span class="tab-dot"></span>Approach 3 — Hybrid</div>
         </div>
 
         <!-- Approach 1 -->
