@@ -39,6 +39,7 @@
             --gradient-lidar: linear-gradient(135deg, #22c55e, #06b6d4);
             --gradient-rgbd: linear-gradient(135deg, #f97316, #ec4899);
             --gradient-hybrid: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+            --approach-rgb: 34,197,94; /* updated by JS on approach switch */
             --border-color: rgba(255, 255, 255, 0.06);
             --glow-blue: 0 0 30px rgba(59, 130, 246, 0.3);
             --glow-purple: 0 0 30px rgba(139, 92, 246, 0.3);
@@ -359,6 +360,10 @@
             overflow: hidden; border: 1px solid var(--border-color);
             background: var(--bg-card);
             box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            transition: box-shadow 0.4s ease;
+        }
+        .viewer-container:hover {
+            box-shadow: 0 0 55px rgba(var(--approach-rgb), 0.4), 0 0 0 1px rgba(var(--approach-rgb), 0.3);
         }
         .viewer-canvas {
             width: 100%; height: 500px; border-radius: var(--radius);
@@ -417,7 +422,11 @@
             border-radius: var(--radius-sm); padding: 20px;
             transition: all 0.3s;
         }
-        .info-card:hover { transform: translateY(-3px); }
+        .info-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(var(--approach-rgb), 0.45);
+            box-shadow: 0 8px 28px rgba(var(--approach-rgb), 0.2);
+        }
         .info-card .info-label {
             color: var(--text-muted); font-size: 0.78rem; font-weight: 600;
             text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
@@ -1949,24 +1958,9 @@ function switchApproach(n) {
     currentApproach = n;
     loadPLY(n);
     resetCamera(n);
-    // Update 3D viewer + info card glow to match approach color
-    var glowMap = {
-        1: { rgb: '34,197,94' },
-        2: { rgb: '249,115,22' },
-        3: { rgb: '139,92,246' }
-    };
-    var g = glowMap[n] || { rgb: '6,182,212' };
-    var rgb = g.rgb;
-    var container = document.querySelector('.viewer-container');
-    if (container) {
-        container.style.transition = 'box-shadow 0.5s ease';
-        container.style.boxShadow = '0 0 40px rgba(' + rgb + ',0.35), 0 0 0 1px rgba(' + rgb + ',0.25)';
-    }
-    document.querySelectorAll('.info-card').forEach(function(card) {
-        card.style.transition = 'border-color 0.5s ease, box-shadow 0.5s ease';
-        card.style.borderColor = 'rgba(' + rgb + ',0.3)';
-        card.style.boxShadow = '0 4px 20px rgba(' + rgb + ',0.1)';
-    });
+    // Update CSS variable so hover glows use the right approach color
+    var rgbMap = { 1: '34,197,94', 2: '249,115,22', 3: '139,92,246' };
+    document.documentElement.style.setProperty('--approach-rgb', rgbMap[n] || '6,182,212');
 }
 
 // ─── Chart.js ───
@@ -2383,13 +2377,8 @@ function initHamburger() {
 // Init
 window.addEventListener('DOMContentLoaded', () => {
     initViewer();
-    // Set initial glow for approach 1 (green)
-    var vc = document.querySelector('.viewer-container');
-    if (vc) { vc.style.transition = 'box-shadow 0.5s ease'; vc.style.boxShadow = '0 0 40px rgba(34,197,94,0.35), 0 0 0 1px rgba(34,197,94,0.25)'; }
-    document.querySelectorAll('.info-card').forEach(function(c) {
-        c.style.borderColor = 'rgba(34,197,94,0.3)';
-        c.style.boxShadow = '0 4px 20px rgba(34,197,94,0.1)';
-    });
+    // Set initial --approach-rgb for approach 1 (green)
+    document.documentElement.style.setProperty('--approach-rgb', '34,197,94');
     initCharts();
     initMLCharts();
     initScrollReveal();
