@@ -2087,12 +2087,13 @@ function switchApproach(n) {
     // Update CSS variable so hover glows use the right approach color
     var rgbMap = { 1: '34,197,94', 2: '249,115,22', 3: '139,92,246' };
     document.documentElement.style.setProperty('--approach-rgb', rgbMap[n] || '6,182,212');
+    if (typeof updateChartsHighlight === 'function') updateChartsHighlight(n);
 }
 
 // ─── Chart.js ───
 function initCharts() {
     // Power chart
-    new Chart(document.getElementById('powerChart'), {
+    window.powerChart = new Chart(document.getElementById('powerChart'), {
         type: 'bar',
         data: {
             labels: ['DC Motors', 'LiDAR System', 'Depth Camera', 'RPi 5', 'Wi-Fi 6E', 'Gas Sensors', 'Other'],
@@ -2133,7 +2134,7 @@ function initCharts() {
     });
 
     // Points / data chart
-    new Chart(document.getElementById('pointsChart'), {
+    window.pointsChart = new Chart(document.getElementById('pointsChart'), {
         type: 'bar',
         data: {
             labels: ['LiDAR', 'RGB-D', 'Hybrid'],
@@ -2168,7 +2169,64 @@ function initCharts() {
                 y: { position: 'left', ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.04)' }, title: { display: true, text: 'Points', color: '#64748b' } },
                 y1: { position: 'right', ticks: { color: '#64748b', callback: v => v + ' MB/s' }, grid: { display: false }, title: { display: true, text: 'Data Rate', color: '#64748b' } }
             }
+            }
         }
+    });
+
+    // Initialize highlight for approach 1
+    setTimeout(() => updateChartsHighlight(1), 100);
+}
+
+// ─── Chart Highlight Sync ───
+function updateChartsHighlight(n) {
+    if (!window.powerChart || !window.pointsChart) return;
+    const index = n - 1; 
+
+    // powerChart: 3 datasets (one for each approach)
+    window.powerChart.data.datasets.forEach((dataset, i) => {
+        const bases = ['34, 197, 94', '249, 115, 22', '139, 92, 246'];
+        const isHovered = i === index;
+        const opacity = isHovered ? 0.9 : 0.15;
+        dataset.backgroundColor = `rgba(${bases[i]}, ${opacity})`;
+        dataset.borderColor = isHovered ? `rgba(${bases[i]}, 1)` : `rgba(${bases[i]}, 0.3)`;
+    });
+    window.powerChart.update();
+
+    // pointsChart: 2 datasets (lists of 3 elements per dataset)
+    const bases = ['34, 197, 94', '249, 115, 22', '139, 92, 246'];
+    window.pointsChart.data.datasets.forEach((dataset, j) => {
+        const newBg = [];
+        const newBorder = [];
+        for (let i = 0; i < 3; i++) {
+            const isHovered = i === index;
+            // dataset 0 is bars, dataset 1 is lines
+            let baseOpacity = j === 0 ? (isHovered ? 0.9 : 0.15) : (isHovered ? 0.6 : 0.1);
+            let borderOpacity = isHovered ? 1 : 0.2;
+            newBg.push(`rgba(${bases[i]}, ${baseOpacity})`);
+            newBorder.push(`rgba(${bases[i]}, ${borderOpacity})`);
+        }
+        dataset.backgroundColor = newBg;
+        dataset.borderColor = newBorder;
+    });
+    window.pointsChart.update();
+}
+
+// ─── Magnetic Buttons ───
+function initMagneticButtons() {
+    const magnetics = document.querySelectorAll('.viewer-btn, .approach-tab, .fs-exit-btn, .nav-links a, .hero-btn');
+    magnetics.forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            btn.style.transition = 'transform 0.1s ease-out, box-shadow 0.3s';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = `translate(0px, 0px)`;
+            btn.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s';
+            setTimeout(() => { btn.style.transition = ''; }, 400); 
+        });
     });
 }
 
@@ -2541,6 +2599,7 @@ window.addEventListener('DOMContentLoaded', () => {
     initHamburger();
     initImageFadeIn();
     initAnimatedScrollbar();
+    initMagneticButtons();
 });
 </script>
 
