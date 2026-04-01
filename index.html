@@ -919,8 +919,8 @@
         }
         .team-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-            border-color: rgba(6, 182, 212, 0.35);
+            box-shadow: 0 20px 50px rgba(var(--approach-rgb, 6,182,212), 0.25), inset 0 0 20px rgba(var(--approach-rgb, 6,182,212), 0.05);
+            border-color: rgba(var(--approach-rgb, 6,182,212), 0.5);
         }
         .team-card h3 {
             font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;
@@ -1216,6 +1216,15 @@
             background: #ffffff;
         }
         body.thermal-vision canvas { mix-blend-mode: multiply; }
+
+        /* ─── Rainbow Easter Egg ─── */
+        body.rainbow-mode .method-card, body.rainbow-mode .team-card,
+        body.rainbow-mode .proteus-panel, body.rainbow-mode .perf-card,
+        body.rainbow-mode .ml-container, body.rainbow-mode .viewer-container {
+            border-color: rgba(var(--approach-rgb, 6,182,212), 0.8) !important;
+            box-shadow: 0 0 40px rgba(var(--approach-rgb, 6,182,212), 0.4), inset 0 0 20px rgba(var(--approach-rgb, 6,182,212), 0.2) !important;
+            transition: none !important;
+        }
     </style>
 </head>
 <body>
@@ -3393,6 +3402,76 @@ function updateChartTheme(isLight) {
         }
 
         animFrame = requestAnimationFrame(gameLoop);
+    }
+})();
+
+// ─── RAINBOW EASTER EGG ───
+(function(){
+    let active = false;
+    let hue = 0;
+    let animFrame = null;
+    let originalRgb = '';
+
+    const codes = { rainbow: ['r','a','i','n','b','o','w'] };
+    let pos = { rainbow: 0 };
+
+    document.addEventListener('keydown', function(e) {
+        const key = e.key.toLowerCase();
+        
+        for (let cmd in codes) {
+            if (key === codes[cmd][pos[cmd]]) {
+                pos[cmd]++;
+                if (pos[cmd] === codes[cmd].length) {
+                    pos[cmd] = 0;
+                    if (cmd === 'rainbow') startRainbow();
+                }
+            } else {
+                pos[cmd] = 0;
+            }
+        }
+        
+        const goneSeq = ['g','o','n','e'];
+        window._gonePosRainbow = window._gonePosRainbow || 0;
+        if (key === goneSeq[window._gonePosRainbow]) {
+            window._gonePosRainbow++;
+            if (window._gonePosRainbow === goneSeq.length) {
+                window._gonePosRainbow = 0;
+                stopRainbow();
+            }
+        } else {
+            window._gonePosRainbow = 0;
+        }
+    });
+
+    function hslToRgbString(h, s, l) {
+        s /= 100; l /= 100;
+        const k = n => (n + h / 30) % 12;
+        const a = s * Math.min(l, 1 - l);
+        const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+        return Math.round(255 * f(0)) + ',' + Math.round(255 * f(8)) + ',' + Math.round(255 * f(4));
+    }
+
+    function rainbowLoop() {
+        if (!active) return;
+        hue = (hue + 1) % 360;
+        document.documentElement.style.setProperty('--approach-rgb', hslToRgbString(hue, 100, 50));
+        animFrame = requestAnimationFrame(rainbowLoop);
+    }
+
+    function startRainbow() {
+        if (active) return;
+        active = true;
+        originalRgb = getComputedStyle(document.documentElement).getPropertyValue('--approach-rgb').trim() || '6,182,212';
+        document.body.classList.add('rainbow-mode');
+        animFrame = requestAnimationFrame(rainbowLoop);
+    }
+
+    function stopRainbow() {
+        if (!active) return;
+        active = false;
+        cancelAnimationFrame(animFrame);
+        document.body.classList.remove('rainbow-mode');
+        document.documentElement.style.setProperty('--approach-rgb', originalRgb);
     }
 })();
 </script>
