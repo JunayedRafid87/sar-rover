@@ -2336,6 +2336,9 @@ function switchMLVersion(ver) {
     });
     document.querySelectorAll('.ml-content-area').forEach(c => c.classList.remove('active'));
     document.getElementById('ml-' + ver).classList.add('active');
+    
+    // Set global theme to yellow when interacting with ML models
+    document.documentElement.style.setProperty('--approach-rgb', '250, 204, 21');
 }
 
 // ─── ML Charts ───
