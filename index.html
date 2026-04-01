@@ -624,6 +624,15 @@
         #approach-3 .proteus-img-card:hover, #proteus-3 .proteus-img-card:hover {
             box-shadow: 0 10px 35px rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.55);
         }
+        /* System overview diagram — blue hover glow */
+        #overview-diagram {
+            transition: box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+        #overview-diagram:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 50px rgba(59,130,246,0.4), 0 0 0 1px rgba(59,130,246,0.35);
+            border-color: rgba(59,130,246,0.5);
+        }
         .proteus-img-card img {
             width: 100%; height: auto; display: block;
         }
@@ -1334,7 +1343,7 @@
 
         <div style="margin-bottom: 40px;">
             <h3 style="text-align: center; color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.1rem;">📊 Overall System Flowchart</h3>
-            <div class="proteus-img-card" style="max-width: 900px; margin: 0 auto;">
+            <div class="proteus-img-card" id="overview-diagram" style="max-width: 900px; margin: 0 auto;">
                 <img loading="lazy" src="diagrams/system_overview.png" alt="System Overview Flowchart" class="diagram-dark" style="width: 100%; border-radius: 12px;">
                 <img loading="lazy" src="diagrams/light/system_overview.png" alt="System Overview Flowchart" class="diagram-light" style="width: 100%; border-radius: 12px;">
             </div>
