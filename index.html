@@ -363,6 +363,7 @@
         .viewer-canvas {
             width: 100%; height: 500px; border-radius: var(--radius);
             cursor: grab; display: block;
+            transition: box-shadow 0.5s ease;
         }
         .viewer-canvas:active { cursor: grabbing; }
         .viewer-loader {
@@ -866,7 +867,7 @@
         @keyframes themeSpin { to { transform: rotate(360deg); } }
 
         /* 3D viewer light mode */
-        body.light-mode .viewer-canvas { background: #f0f0f0; }
+        body.light-mode .viewer-canvas { background: #888888; }
 
         /* Performance: GPU acceleration for hover effects */
 
@@ -1949,6 +1950,11 @@ function switchApproach(n) {
     currentApproach = n;
     loadPLY(n);
     resetCamera(n);
+    // Update 3D viewer underglow to match approach color
+    var glowColors = { 1: '34,197,94', 2: '249,115,22', 3: '139,92,246' };
+    var rgb = glowColors[n] || '6,182,212';
+    var canvas = document.getElementById('viewer3d');
+    if (canvas) canvas.style.boxShadow = '0 8px 40px rgba(' + rgb + ',0.35), 0 0 0 1px rgba(' + rgb + ',0.2)';
 }
 
 // ─── Chart.js ───
@@ -2365,6 +2371,9 @@ function initHamburger() {
 // Init
 window.addEventListener('DOMContentLoaded', () => {
     initViewer();
+    // Set initial underglow for approach 1 (green)
+    var canvas3d = document.getElementById('viewer3d');
+    if (canvas3d) canvas3d.style.boxShadow = '0 8px 40px rgba(34,197,94,0.35), 0 0 0 1px rgba(34,197,94,0.2)';
     initCharts();
     initMLCharts();
     initScrollReveal();
@@ -2402,7 +2411,7 @@ document.getElementById('theme-toggle').addEventListener('click',function(){
         // Update 3D viewer background
         if(window.threeRenderer){
             var isLight=document.body.classList.contains('light-mode');
-            var c=isLight?0xf0f0f0:0x0d1117;
+            var c = isLight ? 0x888888 : 0x0d1117;
             window.threeRenderer.setClearColor(c);
             if(window.threeScene) window.threeScene.fog=new THREE.Fog(c,15,30);
         }
