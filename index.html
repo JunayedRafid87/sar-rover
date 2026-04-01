@@ -1176,9 +1176,43 @@
             opacity: 1;
         }
 
+        /* ─── Custom Dynamic Cursor & Thermal Vision ─── */
+        @media (pointer: fine) {
+            body { cursor: none; }
+            a, button, .approach-tab, .faq-question, .viewer-btn, .section-dot, .proteus-tab { cursor: none !important; }
+            .viewer-canvas { cursor: grab !important; }
+            .viewer-canvas:active { cursor: grabbing !important; }
+            .custom-cursor-dot {
+                position: fixed; width: 6px; height: 6px; border-radius: 50%;
+                background: rgba(var(--approach-rgb, 6, 182, 212), 1);
+                pointer-events: none; z-index: 100000; transform: translate(-50%, -50%);
+                transition: opacity 0.2s; opacity: 0; 
+                box-shadow: 0 0 10px rgba(var(--approach-rgb, 6, 182, 212), 0.8);
+            }
+            .custom-cursor-ring {
+                position: fixed; width: 34px; height: 34px; border-radius: 50%;
+                border: 1.5px solid rgba(var(--approach-rgb, 6, 182, 212), 0.6);
+                pointer-events: none; z-index: 99999; transform: translate(-50%, -50%);
+                transition: height 0.2s ease-out, width 0.2s ease-out, background 0.2s ease-out, border-color 0.2s ease-out, opacity 0.2s; 
+                opacity: 0;
+            }
+            .custom-cursor-ring.active {
+                width: 55px; height: 55px;
+                background: rgba(var(--approach-rgb, 6, 182, 212), 0.15);
+                border-color: rgba(var(--approach-rgb, 6, 182, 212), 1);
+            }
+        }
+        @keyframes toastFade { 0% { opacity: 0; transform: translate(-50%, -20px); } 10% { opacity: 1; transform: translate(-50%, 0); } 90% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -20px); } }
+        body.thermal-vision { 
+            filter: invert(1) sepia(1) saturate(7) hue-rotate(300deg); 
+            background: #ffffff;
+        }
+        body.thermal-vision canvas { mix-blend-mode: multiply; }
     </style>
 </head>
 <body>
+<div class="custom-cursor-dot" id="cursor-dot"></div>
+<div class="custom-cursor-ring" id="cursor-ring"></div>
 <div class="preloader" id="preloader">
     <img src="fydp_logo.png" alt="" class="preloader-logo">
     <div class="preloader-text">Loading</div>
@@ -2734,6 +2768,65 @@ function updateChartTheme(isLight) {
                 activeRow = row;
             }
         }, { passive: true });
+    });
+})();
+
+// ─── Custom Dynamic Cursor ───
+(function(){
+    var dot = document.getElementById('cursor-dot');
+    var ring = document.getElementById('cursor-ring');
+    if(!dot || !ring || window.matchMedia("(pointer: coarse)").matches) return;
+    var mouseX = -100, mouseY = -100;
+    var ringX = -100, ringY = -100;
+    var isHovering = false;
+    
+    document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX; mouseY = e.clientY;
+        dot.style.opacity = 1; ring.style.opacity = 1;
+        dot.style.left = mouseX + 'px';
+        dot.style.top = mouseY + 'px';
+    });
+    
+    document.addEventListener('mouseleave', function() {
+        dot.style.opacity = 0; ring.style.opacity = 0;
+    });
+    
+    document.querySelectorAll('a, button, .approach-tab, .faq-question, .viewer-btn, .section-dot, .proteus-tab').forEach(function(el) {
+        el.addEventListener('mouseenter', function() { ring.classList.add('active'); isHovering = true; });
+        el.addEventListener('mouseleave', function() { ring.classList.remove('active'); isHovering = false; });
+    });
+    
+    function animateRing() {
+        var ease = isHovering ? 0.3 : 0.15;
+        ringX += (mouseX - ringX) * ease;
+        ringY += (mouseY - ringY) * ease;
+        ring.style.left = ringX + 'px';
+        ring.style.top = ringY + 'px';
+        requestAnimationFrame(animateRing);
+    }
+    requestAnimationFrame(animateRing);
+})();
+
+// ─── "THERMAL" Vision Easter Egg ───
+(function(){
+    var code = ['t','h','e','r','m','a','l'];
+    var pos = 0;
+    document.addEventListener('keydown', function(e) {
+        if (e.key.toLowerCase() === code[pos]) {
+            pos++;
+            if (pos === code.length) {
+                document.body.classList.toggle('thermal-vision');
+                pos = 0;
+                var isActive = document.body.classList.contains('thermal-vision');
+                var toast = document.createElement('div');
+                toast.innerHTML = isActive ? '🔥 <span>THERMAL VISION</span> DEPLOYED' : '❄️ <span>THERMAL VISION</span> DEACTIVATED';
+                toast.style.cssText = 'position:fixed;top:30px;left:50%;transform:translateX(-50%);background:rgba(180,20,20,0.9);color:white;padding:12px 24px;z-index:999999;font-weight:700;border-radius:6px;font-family:"JetBrains Mono", monospace;animation:toastFade 3s forwards;box-shadow:0 10px 30px rgba(255,0,0,0.4);letter-spacing:1px;text-align:center;backdrop-filter:blur(8px);';
+                document.body.appendChild(toast);
+                setTimeout(function(){ toast.remove(); }, 3000);
+            }
+        } else {
+            pos = 0;
+        }
     });
 })();
 </script>
