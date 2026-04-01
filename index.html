@@ -60,7 +60,7 @@
 
         /* Custom Cursor */
         body { cursor: none; }
-        a, button, .viewer-btn, .approach-tab, .proteus-tab, .section-dot, .viewer-canvas { cursor: none !important; }
+        a, button, .viewer-btn, .approach-tab, .proteus-tab, .section-dot, .viewer-canvas, .ml-version-tab { cursor: none !important; }
         .custom-cursor, .cursor-trail {
             position: fixed; top: 0; left: 0; pointer-events: none;
             border-radius: 50%; z-index: 9999999; transform: translate(-50%, -50%);
@@ -2822,7 +2822,7 @@ function updateChartTheme(isLight) {
     }
     requestAnimationFrame(renderCursor);
 
-    const interactiveElements = document.querySelectorAll('a, button, .viewer-btn, .approach-tab, .proteus-tab, .section-dot, .viewer-canvas');
+    const interactiveElements = document.querySelectorAll('a, button, .viewer-btn, .approach-tab, .proteus-tab, .section-dot, .viewer-canvas, .ml-version-tab');
     interactiveElements.forEach(el => {
         el.addEventListener('mouseenter', () => { cursor.classList.add('active'); trail.classList.add('active'); });
         el.addEventListener('mouseleave', () => { cursor.classList.remove('active'); trail.classList.remove('active'); });
@@ -2856,7 +2856,7 @@ function updateChartTheme(isLight) {
         osc.stop(audioCtx.currentTime + duration);
     }
 
-    document.querySelectorAll('.approach-tab, .viewer-btn, .nav-links a, .proteus-tab, .section-dot').forEach(btn => {
+    document.querySelectorAll('.approach-tab, .viewer-btn, .nav-links a, .proteus-tab, .section-dot, .ml-version-tab').forEach(btn => {
         btn.addEventListener('mouseenter', () => playBeep(900, 'sine', 0.05, 0.015));
         btn.addEventListener('click', () => playBeep(1400, 'square', 0.1, 0.03));
     });
