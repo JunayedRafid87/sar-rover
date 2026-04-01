@@ -58,6 +58,33 @@
 
         html { scroll-behavior: smooth; }
 
+        /* Custom Cursor */
+        body { cursor: none; }
+        a, button, .viewer-btn, .approach-tab, .proteus-tab, .section-dot, .viewer-canvas { cursor: none !important; }
+        .custom-cursor, .cursor-trail {
+            position: fixed; top: 0; left: 0; pointer-events: none;
+            border-radius: 50%; z-index: 9999999; transform: translate(-50%, -50%);
+        }
+        .custom-cursor {
+            width: 8px; height: 8px;
+            background: rgba(var(--approach-rgb, 6,182,212), 1);
+            box-shadow: 0 0 10px rgba(var(--approach-rgb, 6,182,212), 0.8);
+            transition: width 0.2s, height 0.2s, background 0.2s;
+        }
+        .custom-cursor.active {
+            width: 12px; height: 12px; background: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.8);
+        }
+        .cursor-trail {
+            width: 32px; height: 32px;
+            border: 1px solid rgba(var(--approach-rgb, 6,182,212), 0.4);
+            transition: transform 0.1s ease-out, width 0.2s, height 0.2s, border-color 0.2s;
+        }
+        .cursor-trail.active {
+            width: 48px; height: 48px;
+            border-color: rgba(var(--approach-rgb, 6,182,212), 0.8);
+            background: rgba(var(--approach-rgb, 6,182,212), 0.1);
+        }
+
         /* Scroll Progress Bar */
         .scroll-progress { position:fixed;top:0;left:0;height:3px;z-index:10001;background:var(--gradient-primary);width:0%; }
 
@@ -2764,6 +2791,41 @@ function updateChartTheme(isLight) {
         } else {
             pos = 0;
         }
+    });
+})();
+
+// ─── Custom Dynamic Cursor ───
+(function(){
+    const cursor = document.createElement('div');
+    cursor.className = 'custom-cursor';
+    const trail = document.createElement('div');
+    trail.className = 'cursor-trail';
+    document.body.appendChild(cursor);
+    document.body.appendChild(trail);
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let trailX = mouseX;
+    let trailY = mouseY;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+    });
+
+    function renderCursor() {
+        trailX += (mouseX - trailX) * 0.2;
+        trailY += (mouseY - trailY) * 0.2;
+        trail.style.transform = `translate(${trailX}px, ${trailY}px) translate(-50%, -50%)`;
+        requestAnimationFrame(renderCursor);
+    }
+    requestAnimationFrame(renderCursor);
+
+    const interactiveElements = document.querySelectorAll('a, button, .viewer-btn, .approach-tab, .proteus-tab, .section-dot, .viewer-canvas');
+    interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => { cursor.classList.add('active'); trail.classList.add('active'); });
+        el.addEventListener('mouseleave', () => { cursor.classList.remove('active'); trail.classList.remove('active'); });
     });
 })();
 
