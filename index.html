@@ -2832,13 +2832,16 @@ function updateChartTheme(isLight) {
         requestAnimationFrame(() => canvas.style.opacity = '1');
         
         // Crazy synthetic hack sound
-        if(window.AudioContext && audioEnabled) {
-            const ctxA = new (window.AudioContext || window.webkitAudioContext)();
-            const o = ctxA.createOscillator(), g = ctxA.createGain();
-            o.type= 'sawtooth'; o.frequency.setValueCurveAtTime([150,50,400,20,800], ctxA.currentTime, 3.0);
-            g.gain.setValueAtTime(0.04, ctxA.currentTime); g.gain.linearRampToValueAtTime(0, ctxA.currentTime+3.0);
-            o.connect(g); g.connect(ctxA.destination); o.start(); o.stop(ctxA.currentTime+3.0);
-        }
+        try {
+            if(window.AudioContext) {
+                const ctxA = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctxA.state === 'suspended') ctxA.resume();
+                const o = ctxA.createOscillator(), g = ctxA.createGain();
+                o.type= 'sawtooth'; o.frequency.setValueCurveAtTime([150,50,400,20,800], ctxA.currentTime, 3.0);
+                g.gain.setValueAtTime(0.04, ctxA.currentTime); g.gain.linearRampToValueAtTime(0, ctxA.currentTime+3.0);
+                o.connect(g); g.connect(ctxA.destination); o.start(); o.stop(ctxA.currentTime+3.0);
+            }
+        } catch(e) { console.warn("Matrix Audio prevented by browser."); }
 
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%""\'#&_(),.;:?!\\|{}<>[]^~'.split('');
         const fontSize = 16;
