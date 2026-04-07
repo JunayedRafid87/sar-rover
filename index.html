@@ -2422,12 +2422,99 @@ function toggleAutoRotate() {
 
 // PLY cache — avoids re-fetch and re-parse when revisiting an approach
 const plyCache = {};
+const plyTextCache = {};
+const isMobile = window.innerWidth < 768 || navigator.maxTouchPoints > 1;
+
+function parsePLYText(approach, text) {
+    const info = APPROACHES[approach];
+    const lines = text.split('\n');
+    let headerEnd = 0;
+    let vertexCount = 0;
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('element vertex')) {
+            vertexCount = parseInt(lines[i].split(' ')[2]);
+        }
+        if (lines[i].trim() === 'end_header') {
+            headerEnd = i + 1; break;
+        }
+    }
+
+    const rawX = new Float32Array(vertexCount);
+    const rawY = new Float32Array(vertexCount);
+    const rawZ = new Float32Array(vertexCount);
+    const rawR = new Uint8Array(vertexCount);
+    const rawG = new Uint8Array(vertexCount);
+    const rawB = new Uint8Array(vertexCount);
+    let hasColor = false;
+    let cx = 0, cy = 0, cz = 0, count = 0;
+
+    for (let i = 0; i < vertexCount; i++) {
+        const parts = lines[headerEnd + i]?.trim().split(/\s+/);
+        if (!parts || parts.length < 3) continue;
+        const x = parseFloat(parts[0]), y = parseFloat(parts[1]), z = parseFloat(parts[2]);
+        rawX[i] = x; rawY[i] = y; rawZ[i] = z;
+        cx += x; cy += y; cz += z; count++;
+        if (parts.length >= 6) {
+            rawR[i] = parseInt(parts[3]); rawG[i] = parseInt(parts[4]); rawB[i] = parseInt(parts[5]);
+            if (rawR[i] || rawG[i] || rawB[i]) hasColor = true;
+        }
+    }
+    cx /= count; cy /= count; cz /= count;
+
+    const positions = new Float32Array(vertexCount * 3);
+    const colors = new Float32Array(vertexCount * 3);
+    const fallback = new THREE.Color(info.color);
+
+    for (let i = 0; i < vertexCount; i++) {
+        positions[i * 3]     = rawX[i] - cx;
+        positions[i * 3 + 1] = rawZ[i] - cz;
+        positions[i * 3 + 2] = -(rawY[i] - cy);
+
+        if (rawR[i] || rawG[i] || rawB[i]) {
+            colors[i * 3] = rawR[i] / 255; colors[i * 3 + 1] = rawG[i] / 255; colors[i * 3 + 2] = rawB[i] / 255;
+        } else {
+            colors[i * 3] = fallback.r; colors[i * 3 + 1] = fallback.g; colors[i * 3 + 2] = fallback.b;
+        }
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+        size: 0.03, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.9,
+    });
+
+    const cloud = new THREE.Points(geometry, material);
+    plyCache[approach] = cloud;
+    return cloud;
+}
+
+// Background prefetch — fires after page load
+function prefetchAllPLY() {
+    const idleCb = window.requestIdleCallback || (fn => setTimeout(fn, 200));
+    [1, 2, 3].forEach((n, idx) => {
+        // Stagger fetches to avoid network contention
+        setTimeout(() => {
+            if (plyCache[n]) return; // already loaded by user click
+            fetch(APPROACHES[n].file)
+                .then(r => r.text())
+                .then(text => {
+                    plyTextCache[n] = text;
+                    // Desktop: also pre-parse during idle time
+                    if (!isMobile && !plyCache[n]) {
+                        idleCb(() => { if (!plyCache[n]) parsePLYText(n, text); });
+                    }
+                })
+                .catch(() => {}); // silently fail
+        }, idx * 500); // stagger by 500ms each
+    });
+}
 
 function loadPLY(approach) {
-    const info = APPROACHES[approach];
     const loader = document.getElementById('viewer-loader');
 
-    // If cached, swap instantly
+    // If fully parsed and cached, swap instantly
     if (plyCache[approach]) {
         if (currentCloud) scene.remove(currentCloud);
         currentCloud = plyCache[approach];
@@ -2437,80 +2524,18 @@ function loadPLY(approach) {
     }
 
     if (loader) loader.classList.remove('hidden');
-    fetch(info.file)
-        .then(r => r.text())
-        .then(text => {
-            if (currentCloud) scene.remove(currentCloud);
 
-            const lines = text.split('\n');
-            let headerEnd = 0;
-            let vertexCount = 0;
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('element vertex')) {
-                    vertexCount = parseInt(lines[i].split(' ')[2]);
-                }
-                if (lines[i].trim() === 'end_header') {
-                    headerEnd = i + 1; break;
-                }
-            }
+    // Use prefetched text if available, otherwise fetch
+    const textPromise = plyTextCache[approach]
+        ? Promise.resolve(plyTextCache[approach])
+        : fetch(APPROACHES[approach].file).then(r => r.text());
 
-            // Single-pass: collect raw values first
-            const rawX = new Float32Array(vertexCount);
-            const rawY = new Float32Array(vertexCount);
-            const rawZ = new Float32Array(vertexCount);
-            const rawR = new Uint8Array(vertexCount);
-            const rawG = new Uint8Array(vertexCount);
-            const rawB = new Uint8Array(vertexCount);
-            let hasColor = false;
-            let cx = 0, cy = 0, cz = 0, count = 0;
-
-            for (let i = 0; i < vertexCount; i++) {
-                const parts = lines[headerEnd + i]?.trim().split(/\s+/);
-                if (!parts || parts.length < 3) continue;
-                const x = parseFloat(parts[0]), y = parseFloat(parts[1]), z = parseFloat(parts[2]);
-                rawX[i] = x; rawY[i] = y; rawZ[i] = z;
-                cx += x; cy += y; cz += z; count++;
-                if (parts.length >= 6) {
-                    rawR[i] = parseInt(parts[3]); rawG[i] = parseInt(parts[4]); rawB[i] = parseInt(parts[5]);
-                    if (rawR[i] || rawG[i] || rawB[i]) hasColor = true;
-                }
-            }
-            cx /= count; cy /= count; cz /= count;
-
-            // Build geometry arrays in one pass from cached raw values
-            const positions = new Float32Array(vertexCount * 3);
-            const colors = new Float32Array(vertexCount * 3);
-            const fallback = new THREE.Color(info.color);
-
-            for (let i = 0; i < vertexCount; i++) {
-                positions[i * 3]     = rawX[i] - cx;
-                positions[i * 3 + 1] = rawZ[i] - cz; // swap Y/Z
-                positions[i * 3 + 2] = -(rawY[i] - cy);
-
-                if (rawR[i] || rawG[i] || rawB[i]) {
-                    colors[i * 3] = rawR[i] / 255; colors[i * 3 + 1] = rawG[i] / 255; colors[i * 3 + 2] = rawB[i] / 255;
-                } else {
-                    colors[i * 3] = fallback.r; colors[i * 3 + 1] = fallback.g; colors[i * 3 + 2] = fallback.b;
-                }
-            }
-
-            const geometry = new THREE.BufferGeometry();
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-            const material = new THREE.PointsMaterial({
-                size: 0.03,
-                vertexColors: true,
-                sizeAttenuation: true,
-                transparent: true,
-                opacity: 0.9,
-            });
-
-            currentCloud = new THREE.Points(geometry, material);
-            plyCache[approach] = currentCloud; // cache it
-            scene.add(currentCloud);
-            if (loader) loader.classList.add('hidden');
-        });
+    textPromise.then(text => {
+        if (currentCloud) scene.remove(currentCloud);
+        currentCloud = parsePLYText(approach, text);
+        scene.add(currentCloud);
+        if (loader) loader.classList.add('hidden');
+    });
 }
 
 function switchApproach(n) {
@@ -3187,6 +3212,8 @@ window.addEventListener('DOMContentLoaded', () => {
     initImageFadeIn();
     initAnimatedScrollbar();
     initMagneticButtons();
+    // Start background prefetch of all PLY maps (staggered, non-blocking)
+    setTimeout(prefetchAllPLY, 1000);
 });
 </script>
 
