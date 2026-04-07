@@ -64,6 +64,7 @@
         .custom-cursor, .cursor-trail {
             position: fixed; top: 0; left: 0; pointer-events: none;
             border-radius: 50%; z-index: 9999999; transform: translate(-50%, -50%);
+            will-change: transform;
         }
         .custom-cursor {
             width: 8px; height: 8px;
@@ -269,12 +270,12 @@
 
         .bg-glow {
             position: fixed; z-index: 0; pointer-events: none;
-            width: 600px; height: 600px; border-radius: 50%;
-            filter: blur(120px); opacity: 0.08;
+            width: 900px; height: 900px; border-radius: 50%;
+            opacity: 0.08;
         }
-        .bg-glow-1 { top: -200px; left: -100px; background: var(--accent-blue); }
-        .bg-glow-2 { top: 40%; right: -200px; background: var(--accent-purple); }
-        .bg-glow-3 { bottom: -100px; left: 30%; background: var(--accent-pink); }
+        .bg-glow-1 { top: -200px; left: -100px; background: radial-gradient(circle, var(--accent-blue) 0%, transparent 70%); }
+        .bg-glow-2 { top: 40%; right: -200px; background: radial-gradient(circle, var(--accent-purple) 0%, transparent 70%); }
+        .bg-glow-3 { bottom: -100px; left: 30%; background: radial-gradient(circle, var(--accent-pink) 0%, transparent 70%); }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
 
@@ -603,7 +604,7 @@
         .chart-card {
             background: var(--bg-card); border: 1px solid var(--border-color);
             border-radius: var(--radius); padding: 28px;
-            transition: all 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
         }
         .chart-card:hover {
             transform: translateY(-4px);
@@ -613,7 +614,7 @@
         .net-video-card {
             border-radius: var(--radius); overflow: hidden; margin-bottom: 32px;
             border: none; background: transparent;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .net-video-card:hover {
             transform: translateY(-4px);
@@ -621,7 +622,7 @@
         }
         .spider-card, .matlab-battery-card, .matlab-pid-card {
             background: var(--bg-card); border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .spider-card:hover, .matlab-battery-card:hover {
@@ -640,7 +641,7 @@
         .method-card {
             background: var(--bg-card); border: 1px solid var(--border-color);
             border-radius: var(--radius); padding: 32px; position: relative;
-            overflow: hidden; transition: all 0.3s;
+            overflow: hidden; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
         }
         .method-card:hover {
             transform: translateY(-4px);
@@ -3061,18 +3062,18 @@ function initParticles() {
             ctx.fillStyle = `rgba(59, 130, 246, ${p.a})`;
             ctx.fill();
 
-            // Draw connections (skip squared distance calc if far apart)
+            // Draw connections (squared distance — avoids sqrt)
             for (let j = i + 1; j < particles.length; j++) {
                 const dx = p.x - particles[j].x;
                 if (dx > 100 || dx < -100) continue;
                 const dy = p.y - particles[j].y;
                 if (dy > 100 || dy < -100) continue;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 100) {
+                const distSq = dx * dx + dy * dy;
+                if (distSq < 10000) {
                     ctx.beginPath();
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.06 * (1 - dist / 100)})`;
+                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.06 * (1 - distSq / 10000)})`;
                     ctx.stroke();
                 }
             }
@@ -3143,14 +3144,17 @@ function initImageFadeIn() {
 
 // ─── Animated Scrollbar ───
 function initAnimatedScrollbar() {
-    let t = 0;
-    function cycle() {
-        t += 0.02;
-        const focus = (Math.sin(t) * 50) + 50; // Oscillates between 0 and 100
+    let scrollRAF;
+    function update() {
+        const s = document.documentElement.scrollTop;
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        const focus = h > 0 ? (s / h * 100) : 0;
         document.documentElement.style.setProperty('--scroll-grad-focus', `${focus}%`);
-        requestAnimationFrame(cycle);
+        scrollRAF = 0;
     }
-    requestAnimationFrame(cycle);
+    window.addEventListener('scroll', function() {
+        if (!scrollRAF) scrollRAF = requestAnimationFrame(update);
+    }, { passive: true });
 }
 
 // Init
