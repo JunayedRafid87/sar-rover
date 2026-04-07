@@ -2420,9 +2420,22 @@ function toggleAutoRotate() {
     }
 }
 
+// PLY cache — avoids re-fetch and re-parse when revisiting an approach
+const plyCache = {};
+
 function loadPLY(approach) {
     const info = APPROACHES[approach];
     const loader = document.getElementById('viewer-loader');
+
+    // If cached, swap instantly
+    if (plyCache[approach]) {
+        if (currentCloud) scene.remove(currentCloud);
+        currentCloud = plyCache[approach];
+        scene.add(currentCloud);
+        if (loader) loader.classList.add('hidden');
+        return;
+    }
+
     if (loader) loader.classList.remove('hidden');
     fetch(info.file)
         .then(r => r.text())
@@ -2441,43 +2454,43 @@ function loadPLY(approach) {
                 }
             }
 
-            const positions = new Float32Array(vertexCount * 3);
-            const colors = new Float32Array(vertexCount * 3);
+            // Single-pass: collect raw values first
+            const rawX = new Float32Array(vertexCount);
+            const rawY = new Float32Array(vertexCount);
+            const rawZ = new Float32Array(vertexCount);
+            const rawR = new Uint8Array(vertexCount);
+            const rawG = new Uint8Array(vertexCount);
+            const rawB = new Uint8Array(vertexCount);
             let hasColor = false;
-
-            // Compute centroid for centering
             let cx = 0, cy = 0, cz = 0, count = 0;
+
             for (let i = 0; i < vertexCount; i++) {
                 const parts = lines[headerEnd + i]?.trim().split(/\s+/);
                 if (!parts || parts.length < 3) continue;
-                cx += parseFloat(parts[0]);
-                cy += parseFloat(parts[1]);
-                cz += parseFloat(parts[2]);
-                count++;
+                const x = parseFloat(parts[0]), y = parseFloat(parts[1]), z = parseFloat(parts[2]);
+                rawX[i] = x; rawY[i] = y; rawZ[i] = z;
+                cx += x; cy += y; cz += z; count++;
+                if (parts.length >= 6) {
+                    rawR[i] = parseInt(parts[3]); rawG[i] = parseInt(parts[4]); rawB[i] = parseInt(parts[5]);
+                    if (rawR[i] || rawG[i] || rawB[i]) hasColor = true;
+                }
             }
             cx /= count; cy /= count; cz /= count;
 
+            // Build geometry arrays in one pass from cached raw values
+            const positions = new Float32Array(vertexCount * 3);
+            const colors = new Float32Array(vertexCount * 3);
+            const fallback = new THREE.Color(info.color);
+
             for (let i = 0; i < vertexCount; i++) {
-                const parts = lines[headerEnd + i]?.trim().split(/\s+/);
-                if (!parts || parts.length < 3) continue;
+                positions[i * 3]     = rawX[i] - cx;
+                positions[i * 3 + 1] = rawZ[i] - cz; // swap Y/Z
+                positions[i * 3 + 2] = -(rawY[i] - cy);
 
-                positions[i * 3]     = parseFloat(parts[0]) - cx;
-                positions[i * 3 + 1] = parseFloat(parts[2]) - cz; // swap Y/Z
-                positions[i * 3 + 2] = -(parseFloat(parts[1]) - cy);
-
-                if (parts.length >= 6) {
-                    const r = parseInt(parts[3]), g = parseInt(parts[4]), b = parseInt(parts[5]);
-                    if (r === 0 && g === 0 && b === 0) {
-                        // LiDAR default: use approach color
-                        const c = new THREE.Color(info.color);
-                        colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
-                    } else {
-                        colors[i * 3] = r / 255; colors[i * 3 + 1] = g / 255; colors[i * 3 + 2] = b / 255;
-                        hasColor = true;
-                    }
+                if (rawR[i] || rawG[i] || rawB[i]) {
+                    colors[i * 3] = rawR[i] / 255; colors[i * 3 + 1] = rawG[i] / 255; colors[i * 3 + 2] = rawB[i] / 255;
                 } else {
-                    const c = new THREE.Color(info.color);
-                    colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+                    colors[i * 3] = fallback.r; colors[i * 3 + 1] = fallback.g; colors[i * 3 + 2] = fallback.b;
                 }
             }
 
@@ -2494,8 +2507,8 @@ function loadPLY(approach) {
             });
 
             currentCloud = new THREE.Points(geometry, material);
+            plyCache[approach] = currentCloud; // cache it
             scene.add(currentCloud);
-            const loader = document.getElementById('viewer-loader');
             if (loader) loader.classList.add('hidden');
         });
 }
