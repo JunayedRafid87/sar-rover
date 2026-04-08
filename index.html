@@ -1325,11 +1325,11 @@
             <span class="badge">FYDP D — Group 2</span>
         </div>
         <div class="nav-links">
-            <a href="#methodology">Methodology</a>
-            <a href="#proteus">Proteus</a>
             <a href="#viewer">3D Maps</a>
             <a href="#comparison">Comparison</a>
             <a href="#analytics">Analytics</a>
+            <a href="#methodology">Methodology</a>
+            <a href="#proteus">Proteus</a>
             <a href="#network-telemetry">Network Sim</a>
             <a href="#ml-detection">ML Detection</a>
             <a href="#about">About Us</a>
@@ -1389,176 +1389,6 @@
 </section>
 
 <!-- ─── Interactive 3D Viewer ─── -->
-<section id="methodology" class="reveal">
-    <div class="container">
-        <div class="section-header">
-            <h2>System Architecture & Methodology</h2>
-            <p>Click an approach to explore its data flow pipeline and mapping methodology</p>
-        </div>
-
-        <div style="margin-bottom: 40px;">
-            <h3 style="text-align: center; color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.1rem;">📊 Overall System Flowchart</h3>
-            <div class="proteus-img-card" id="overview-diagram" style="max-width: 900px; margin: 0 auto;">
-                <img loading="lazy" src="diagrams/system_overview.png" alt="System Overview Flowchart" class="diagram-dark" style="width: 100%; border-radius: 12px;">
-                <img loading="lazy" src="diagrams/light/system_overview.png" alt="System Overview Flowchart" class="diagram-light" style="width: 100%; border-radius: 12px;">
-            </div>
-        </div>
-
-        <div class="proteus-tabs">
-            <div class="proteus-tab active" data-approach="1" onclick="switchApproachTab(1)"><span class="tab-dot"></span>Approach 1 — LiDAR</div>
-            <div class="proteus-tab" data-approach="2" onclick="switchApproachTab(2)"><span class="tab-dot"></span>Approach 2 — RGB-D</div>
-            <div class="proteus-tab" data-approach="3" onclick="switchApproachTab(3)"><span class="tab-dot"></span>Approach 3 — Hybrid</div>
-        </div>
-
-        <div class="proteus-panel active" id="approach-1">
-            <div class="approach-layout">
-                <div class="method-card">
-                    <div class="method-num">01</div>
-                    <h3 style="color: var(--accent-green);">LiDAR Mapping</h3>
-                    <div class="method-sensor">RPLiDAR C1 · 16 Layers · 360°</div>
-                    <p>Full 360° structural scanning using a 16-layer rotating LiDAR. Produces a dense geometric point cloud ideal for navigation and obstacle mapping.</p>
-                    <ul>
-                        <li>720 horizontal × 16 vertical rays · 0.15m – 12m range</li>
-                        <li>ICP SLAM Algorithm — <strong>45,356</strong> cloud map points saved</li>
-                        <li>Power draw: <strong>42.5W</strong> · Battery ETA: <strong>37 min</strong></li>
-                        <li>LiDAR stream PDR: <strong>51.4%</strong> (14,359 / 27,907 pkts) · avg delay 1.495 s</li>
-                        <li>Data throughput: <strong>6.9 MB/s</strong> · No color data (geometry only)</li>
-                    </ul>
-                </div>
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="diagrams/approach_1_flow.png" alt="Approach 1 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
-                    <img loading="lazy" src="diagrams/light/approach_1_flow.png" alt="Approach 1 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
-                </div>
-            </div>
-        </div>
-
-        <div class="proteus-panel" id="approach-2">
-            <div class="approach-layout">
-                <div class="method-card">
-                    <div class="method-num">02</div>
-                    <h3 style="color: var(--accent-orange);">RGB-D Mapping</h3>
-                    <div class="method-sensor">Orbbec Astra Pro · 480×360 · 90° FOV</div>
-                    <p>High-resolution depth + color camera captures detailed 3D reconstructions with real-world textures and colors, crucial for victim identification.</p>
-                    <ul>
-                        <li>480×360 depth + RGB · 90° FOV · back-projected coloured point cloud</li>
-                        <li>RGBD SLAM (Cloud Accumulation) — <strong>24,202</strong> cloud map points saved</li>
-                        <li>Power draw: <strong>42.3W</strong> · Battery ETA: <strong>38 min</strong></li>
-                        <li>Depth stream PDR: <strong>8.2%</strong> (20,590 / 250,001 pkts) — network-heavy</li>
-                        <li>Data throughput: <strong>18.9 MB/s</strong> · Full RGB colour data</li>
-                    </ul>
-                </div>
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="diagrams/approach_2_flow.png" alt="Approach 2 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
-                    <img loading="lazy" src="diagrams/light/approach_2_flow.png" alt="Approach 2 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
-                </div>
-            </div>
-        </div>
-
-        <div class="proteus-panel" id="approach-3">
-            <div class="approach-layout">
-                <div class="method-card">
-                    <div class="method-num">03</div>
-                    <h3 style="color: var(--accent-purple);">Hybrid Fusion</h3>
-                    <div class="method-sensor">LiDAR + Orbbec · RTAB-Map SLAM</div>
-                    <p>Combines the strengths of both sensors using RTAB-Map SLAM for robust loop closure, drift correction, and fused occupancy mapping.</p>
-                    <ul>
-                        <li>LiDAR 360° structure + Orbbec 90° FOV colour fusion</li>
-                        <li>RTAB-Map Fusion SLAM — <strong>30,120</strong> fused cloud map points saved</li>
-                        <li>Power draw: <strong>49.9W</strong> · Battery ETA: <strong>30 min</strong></li>
-                        <li>LiDAR PDR: <strong>50.1%</strong> · Depth PDR: <strong>11.4%</strong> (QoS-managed)</li>
-                        <li>Data throughput: <strong>21.5 MB/s</strong> · Fused RGB + Depth output</li>
-                    </ul>
-                </div>
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="diagrams/approach_3_flow.png" alt="Approach 3 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
-                    <img loading="lazy" src="diagrams/light/approach_3_flow.png" alt="Approach 3 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ─── Proteus Circuit Simulation ─── -->
-<section id="proteus" class="reveal">
-    <div class="container">
-        <div class="section-header">
-            <h2>⚡ Proteus Circuit Simulation</h2>
-            <p>Hardware-level circuit design and simulation for all three approach configurations</p>
-        </div>
-
-        <div class="proteus-tabs">
-            <div class="proteus-tab active" data-approach="1" onclick="switchProteus(1)"><span class="tab-dot"></span>Approach 1 — LiDAR</div>
-            <div class="proteus-tab" data-approach="2" onclick="switchProteus(2)"><span class="tab-dot"></span>Approach 2 — RGB-D</div>
-            <div class="proteus-tab" data-approach="3" onclick="switchProteus(3)"><span class="tab-dot"></span>Approach 3 — Hybrid</div>
-        </div>
-
-        <!-- Approach 1 -->
-        <div class="proteus-panel active" id="proteus-1">
-            <div class="proteus-content">
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="proteus/Proteus%20approach%201%20CCT.png" alt="Approach 1 Circuit Diagram">
-                    <div class="img-label">📐 Circuit Schematic — LiDAR Configuration</div>
-                </div>
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="proteus/Proteus%20approach%201%20working.png" alt="Approach 1 Working Simulation">
-                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
-                </div>
-                <div class="proteus-video-card">
-                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/YH4mtzIpYkA" title="Proteus Simulation - Approach 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
-                    <div class="video-label">🎬 Proteus Simulation Video — Approach 1 (LiDAR)</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Approach 2 -->
-        <div class="proteus-panel" id="proteus-2">
-            <div class="proteus-content">
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="proteus/Proteus%20approach%202%20CCT.png" alt="Approach 2 Circuit Diagram">
-                    <div class="img-label">📐 Circuit Schematic — RGB-D Configuration</div>
-                </div>
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="proteus/Proteus%20approach%202%20working.png" alt="Approach 2 Working Simulation">
-                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
-                </div>
-                <div class="proteus-video-card">
-                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/-5_4aJ3pGlk" title="Proteus Simulation - Approach 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
-                    <div class="video-label">🎬 Proteus Simulation Video — Approach 2 (RGB-D)</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Approach 3 -->
-        <div class="proteus-panel" id="proteus-3">
-            <div class="proteus-content">
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="proteus/Proteus%20approach%203%20CCT.png" alt="Approach 3 Circuit Diagram">
-                    <div class="img-label">📐 Circuit Schematic — Hybrid Configuration</div>
-                </div>
-                <div class="proteus-img-card">
-                    <img loading="lazy" src="proteus/Proteus%20approach%203%20working.png" alt="Approach 3 Working Simulation">
-                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
-                </div>
-                <div class="proteus-video-card">
-                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/THYSCRNkEWY" title="Proteus Simulation - Approach 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
-                    <div class="video-label">🎬 Proteus Simulation Video — Approach 3 (Hybrid)</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="proteus-components">
-            <div class="component-chip" data-tooltip="Core processing unit for motor control, kinematics, and serial coordination over ROS 2 bridge."><span class="chip-icon">🧠</span>Arduino Mega 2560</div>
-            <div class="component-chip" data-tooltip="Dual H-bridge motor driver supplying continuous fast torque to the DC motors."><span class="chip-icon">⚙️</span>TB6612FNG Driver</div>
-            <div class="component-chip proteus-stepper" data-tooltip="Precise 360° continuously rotating base used to pan the LiDAR or Depth sensor."><span class="chip-icon">🔄</span>Stepper Motor</div>
-            <div class="component-chip" data-tooltip="Holonomic rover drivetrain with encoders for precise odometry and localized movement."><span class="chip-icon">🏎️</span>DC Motors</div>
-            <div class="component-chip" data-tooltip="Detects harmful air quality drops and toxic gases to alert rescue operators."><span class="chip-icon">💨</span>MQ-135 Air Sensor</div>
-            <div class="component-chip" data-tooltip="Detects combustible methane (CH4) concentrations for explosive hazard avoidance."><span class="chip-icon">🔥</span>MQ-4 Methane</div>
-            <div class="component-chip" data-tooltip="Monitors Carbon Monoxide (CO) to ensure safety in burning or poorly ventilated ruins."><span class="chip-icon">☁️</span>MQ-7 CO Sensor</div>
-        </div>
-    </div>
-</section>
-
-<!-- ─── ML Thermal Detection ─── -->
 <section id="viewer" class="viewer-section">
     <div class="container">
         <div class="section-header">
@@ -1869,6 +1699,176 @@
 </section>
 
 <!-- ─── Network Telemetry ─── -->
+<section id="methodology" class="reveal">
+    <div class="container">
+        <div class="section-header">
+            <h2>System Architecture & Methodology</h2>
+            <p>Click an approach to explore its data flow pipeline and mapping methodology</p>
+        </div>
+
+        <div style="margin-bottom: 40px;">
+            <h3 style="text-align: center; color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.1rem;">📊 Overall System Flowchart</h3>
+            <div class="proteus-img-card" id="overview-diagram" style="max-width: 900px; margin: 0 auto;">
+                <img loading="lazy" src="diagrams/system_overview.png" alt="System Overview Flowchart" class="diagram-dark" style="width: 100%; border-radius: 12px;">
+                <img loading="lazy" src="diagrams/light/system_overview.png" alt="System Overview Flowchart" class="diagram-light" style="width: 100%; border-radius: 12px;">
+            </div>
+        </div>
+
+        <div class="proteus-tabs">
+            <div class="proteus-tab active" data-approach="1" onclick="switchApproachTab(1)"><span class="tab-dot"></span>Approach 1 — LiDAR</div>
+            <div class="proteus-tab" data-approach="2" onclick="switchApproachTab(2)"><span class="tab-dot"></span>Approach 2 — RGB-D</div>
+            <div class="proteus-tab" data-approach="3" onclick="switchApproachTab(3)"><span class="tab-dot"></span>Approach 3 — Hybrid</div>
+        </div>
+
+        <div class="proteus-panel active" id="approach-1">
+            <div class="approach-layout">
+                <div class="method-card">
+                    <div class="method-num">01</div>
+                    <h3 style="color: var(--accent-green);">LiDAR Mapping</h3>
+                    <div class="method-sensor">RPLiDAR C1 · 16 Layers · 360°</div>
+                    <p>Full 360° structural scanning using a 16-layer rotating LiDAR. Produces a dense geometric point cloud ideal for navigation and obstacle mapping.</p>
+                    <ul>
+                        <li>720 horizontal × 16 vertical rays · 0.15m – 12m range</li>
+                        <li>ICP SLAM Algorithm — <strong>45,356</strong> cloud map points saved</li>
+                        <li>Power draw: <strong>42.5W</strong> · Battery ETA: <strong>37 min</strong></li>
+                        <li>LiDAR stream PDR: <strong>51.4%</strong> (14,359 / 27,907 pkts) · avg delay 1.495 s</li>
+                        <li>Data throughput: <strong>6.9 MB/s</strong> · No color data (geometry only)</li>
+                    </ul>
+                </div>
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="diagrams/approach_1_flow.png" alt="Approach 1 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/light/approach_1_flow.png" alt="Approach 1 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="proteus-panel" id="approach-2">
+            <div class="approach-layout">
+                <div class="method-card">
+                    <div class="method-num">02</div>
+                    <h3 style="color: var(--accent-orange);">RGB-D Mapping</h3>
+                    <div class="method-sensor">Orbbec Astra Pro · 480×360 · 90° FOV</div>
+                    <p>High-resolution depth + color camera captures detailed 3D reconstructions with real-world textures and colors, crucial for victim identification.</p>
+                    <ul>
+                        <li>480×360 depth + RGB · 90° FOV · back-projected coloured point cloud</li>
+                        <li>RGBD SLAM (Cloud Accumulation) — <strong>24,202</strong> cloud map points saved</li>
+                        <li>Power draw: <strong>42.3W</strong> · Battery ETA: <strong>38 min</strong></li>
+                        <li>Depth stream PDR: <strong>8.2%</strong> (20,590 / 250,001 pkts) — network-heavy</li>
+                        <li>Data throughput: <strong>18.9 MB/s</strong> · Full RGB colour data</li>
+                    </ul>
+                </div>
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="diagrams/approach_2_flow.png" alt="Approach 2 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/light/approach_2_flow.png" alt="Approach 2 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="proteus-panel" id="approach-3">
+            <div class="approach-layout">
+                <div class="method-card">
+                    <div class="method-num">03</div>
+                    <h3 style="color: var(--accent-purple);">Hybrid Fusion</h3>
+                    <div class="method-sensor">LiDAR + Orbbec · RTAB-Map SLAM</div>
+                    <p>Combines the strengths of both sensors using RTAB-Map SLAM for robust loop closure, drift correction, and fused occupancy mapping.</p>
+                    <ul>
+                        <li>LiDAR 360° structure + Orbbec 90° FOV colour fusion</li>
+                        <li>RTAB-Map Fusion SLAM — <strong>30,120</strong> fused cloud map points saved</li>
+                        <li>Power draw: <strong>49.9W</strong> · Battery ETA: <strong>30 min</strong></li>
+                        <li>LiDAR PDR: <strong>50.1%</strong> · Depth PDR: <strong>11.4%</strong> (QoS-managed)</li>
+                        <li>Data throughput: <strong>21.5 MB/s</strong> · Fused RGB + Depth output</li>
+                    </ul>
+                </div>
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="diagrams/approach_3_flow.png" alt="Approach 3 Flowchart" class="diagram-dark" style="width: 100%; border-radius: 8px;">
+                    <img loading="lazy" src="diagrams/light/approach_3_flow.png" alt="Approach 3 Flowchart" class="diagram-light" style="width: 100%; border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Proteus Circuit Simulation ─── -->
+<section id="proteus" class="reveal">
+    <div class="container">
+        <div class="section-header">
+            <h2>⚡ Proteus Circuit Simulation</h2>
+            <p>Hardware-level circuit design and simulation for all three approach configurations</p>
+        </div>
+
+        <div class="proteus-tabs">
+            <div class="proteus-tab active" data-approach="1" onclick="switchProteus(1)"><span class="tab-dot"></span>Approach 1 — LiDAR</div>
+            <div class="proteus-tab" data-approach="2" onclick="switchProteus(2)"><span class="tab-dot"></span>Approach 2 — RGB-D</div>
+            <div class="proteus-tab" data-approach="3" onclick="switchProteus(3)"><span class="tab-dot"></span>Approach 3 — Hybrid</div>
+        </div>
+
+        <!-- Approach 1 -->
+        <div class="proteus-panel active" id="proteus-1">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="proteus/Proteus%20approach%201%20CCT.png" alt="Approach 1 Circuit Diagram">
+                    <div class="img-label">📐 Circuit Schematic — LiDAR Configuration</div>
+                </div>
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="proteus/Proteus%20approach%201%20working.png" alt="Approach 1 Working Simulation">
+                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
+                </div>
+                <div class="proteus-video-card">
+                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/YH4mtzIpYkA" title="Proteus Simulation - Approach 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+                    <div class="video-label">🎬 Proteus Simulation Video — Approach 1 (LiDAR)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approach 2 -->
+        <div class="proteus-panel" id="proteus-2">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="proteus/Proteus%20approach%202%20CCT.png" alt="Approach 2 Circuit Diagram">
+                    <div class="img-label">📐 Circuit Schematic — RGB-D Configuration</div>
+                </div>
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="proteus/Proteus%20approach%202%20working.png" alt="Approach 2 Working Simulation">
+                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
+                </div>
+                <div class="proteus-video-card">
+                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/-5_4aJ3pGlk" title="Proteus Simulation - Approach 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+                    <div class="video-label">🎬 Proteus Simulation Video — Approach 2 (RGB-D)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approach 3 -->
+        <div class="proteus-panel" id="proteus-3">
+            <div class="proteus-content">
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="proteus/Proteus%20approach%203%20CCT.png" alt="Approach 3 Circuit Diagram">
+                    <div class="img-label">📐 Circuit Schematic — Hybrid Configuration</div>
+                </div>
+                <div class="proteus-img-card">
+                    <img loading="lazy" src="proteus/Proteus%20approach%203%20working.png" alt="Approach 3 Working Simulation">
+                    <div class="img-label">▶️ Live Simulation — Serial Monitor Output</div>
+                </div>
+                <div class="proteus-video-card">
+                    <div class="yt-wrapper"><iframe src="https://www.youtube.com/embed/THYSCRNkEWY" title="Proteus Simulation - Approach 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+                    <div class="video-label">🎬 Proteus Simulation Video — Approach 3 (Hybrid)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="proteus-components">
+            <div class="component-chip" data-tooltip="Core processing unit for motor control, kinematics, and serial coordination over ROS 2 bridge."><span class="chip-icon">🧠</span>Arduino Mega 2560</div>
+            <div class="component-chip" data-tooltip="Dual H-bridge motor driver supplying continuous fast torque to the DC motors."><span class="chip-icon">⚙️</span>TB6612FNG Driver</div>
+            <div class="component-chip proteus-stepper" data-tooltip="Precise 360° continuously rotating base used to pan the LiDAR or Depth sensor."><span class="chip-icon">🔄</span>Stepper Motor</div>
+            <div class="component-chip" data-tooltip="Holonomic rover drivetrain with encoders for precise odometry and localized movement."><span class="chip-icon">🏎️</span>DC Motors</div>
+            <div class="component-chip" data-tooltip="Detects harmful air quality drops and toxic gases to alert rescue operators."><span class="chip-icon">💨</span>MQ-135 Air Sensor</div>
+            <div class="component-chip" data-tooltip="Detects combustible methane (CH4) concentrations for explosive hazard avoidance."><span class="chip-icon">🔥</span>MQ-4 Methane</div>
+            <div class="component-chip" data-tooltip="Monitors Carbon Monoxide (CO) to ensure safety in burning or poorly ventilated ruins."><span class="chip-icon">☁️</span>MQ-7 CO Sensor</div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── ML Thermal Detection ─── -->
 <section id="network-telemetry" class="reveal">
     <div class="container">
         <div class="section-header">
