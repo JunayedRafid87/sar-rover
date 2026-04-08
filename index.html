@@ -1748,68 +1748,88 @@
         <div class="charts-grid">
             <div class="chart-card">
                 <h3>📦 Packet Delivery Ratio (%)</h3>
-                <div style="height:200px;position:relative;"><canvas id="netPdrChart"></canvas></div>
+                <div style="height:220px;position:relative;"><canvas id="netPdrChart"></canvas></div>
             </div>
             <div class="chart-card">
-                <h3>📤 Packets Sent by Sensor</h3>
-                <div style="height:200px;position:relative;"><canvas id="netSentChart"></canvas></div>
+                <h3>📡 Throughput by Sensor (Mbps)</h3>
+                <div style="height:220px;position:relative;"><canvas id="netSentChart"></canvas></div>
+            </div>
+        </div>
+        <div class="charts-grid" style="margin-top:24px;">
+            <div class="chart-card">
+                <h3>⏱ End-to-End Delay &amp; Jitter</h3>
+                <p style="color:var(--text-muted);font-size:0.8rem;margin:-8px 0 10px;">Left axis: Mean &amp; Jitter · Right axis: Max Delay</p>
+                <div style="height:220px;position:relative;"><canvas id="netDelayChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>📈 SNIR CDF — All Approaches</h3>
+                <p style="color:var(--text-muted);font-size:0.8rem;margin:-8px 0 10px;">Cumulative Distribution of Signal-to-Noise+Interference Ratio</p>
+                <div style="height:220px;position:relative;"><canvas id="netSnirChart"></canvas></div>
             </div>
         </div>
 
-        <!-- Results table -->
-        <div style="overflow-x:auto;margin-top:40px;">
-            <table class="comparison-table">
+
+        <!-- PDR Results Table -->
+        <div style="overflow-x:auto; margin-top:40px;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem; color:var(--text-color);">
                 <thead>
-                    <tr>
-                        <th>Sensor / Stream</th>
-                        <th>AP1 — LiDAR+RGB<br><small>PDR / Rcvd</small></th>
-                        <th>AP2 — Depth<br><small>PDR / Rcvd</small></th>
-                        <th>AP3 — Hybrid<br><small>PDR / Rcvd</small></th>
+                    <tr style="border-bottom:2px solid var(--border);">
+                        <th style="padding:12px 16px; text-align:left; color:var(--text-muted); font-weight:600;" colspan="2">Sensor</th>
+                        <th style="padding:12px 16px; text-align:center; color:var(--accent-green); font-weight:700;">A1 PDR (%)<br><small style="font-weight:400;color:var(--text-muted);">Dual Channel</small></th>
+                        <th style="padding:12px 16px; text-align:center; color:var(--accent-orange); font-weight:700;">A2 PDR (%)<br><small style="font-weight:400;color:var(--text-muted);">Single Channel</small></th>
+                        <th style="padding:12px 16px; text-align:center; color:var(--accent-purple); font-weight:700;">A3 PDR (%)<br><small style="font-weight:400;color:var(--text-muted);">Optimized Single</small></th>
+                        <th style="padding:12px 16px; text-align:center; color:var(--text-muted); font-weight:600;">Best</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>LiDAR (27,907 sent)</td>
-                        <td><span class="badge-yes">51.4% / 14,359</span><br><small>avg delay 1.495 s</small></td>
-                        <td>N/A</td>
-                        <td><span class="badge-yes">50.1% / 13,979</span><br><small>avg delay 1.262 s</small></td></tr>
-                    <tr><td>RGB Camera (6,000 sent)</td>
-                        <td><span class="badge-no">52.9% / 3,171</span><br><small>avg delay 2.324 s</small></td>
-                        <td>N/A</td><td>N/A</td></tr>
-                    <tr><td>Depth / RGB-D Camera</td>
-                        <td>N/A</td>
-                        <td><span class="badge-no">8.2% / 20,590<br><small>250,001 sent &mdash; severe congestion</small></span><br><small>avg delay 1.919 s</small></td>
-                        <td><span class="badge-no">11.4% / 17,050<br><small>150,001 sent</small></span><br><small>avg delay 1.884 s</small></td></tr>
-                    <tr><td>Thermal Cam (2,400 sent)</td>
-                        <td><span class="badge-yes">99.9% / 2,397</span><br><small>avg delay 1.408 ms</small></td>
-                        <td><span class="badge-yes">99.9% / 2,397</span><br><small>avg delay 1.097 ms</small></td>
-                        <td><span class="badge-yes">99.96% / 2,399</span><br><small>avg delay 1.453 ms</small></td></tr>
-                    <tr><td>Gas Sensor (1,195 sent)</td>
-                        <td><span class="badge-yes">99.9% / 1,194</span><br><small>avg delay 678 &mu;s</small></td>
-                        <td><span class="badge-yes">99.4% / 1,188</span><br><small>avg delay 804 &mu;s</small></td>
-                        <td><span class="badge-yes">99.9% / 1,194</span><br><small>avg delay 687 &mu;s</small></td></tr>
-                    <tr><td>Rover Control (1,201 sent)</td>
-                        <td><span class="badge-yes">99.9% / 1,200</span><br><small>avg delay 1.105 ms</small></td>
-                        <td><span class="badge-yes">99.8% / 1,199</span><br><small>avg delay 955 &mu;s</small></td>
-                        <td><span class="badge-yes">99.9% / 1,200</span><br><small>avg delay 1.091 ms</small></td></tr>
-                    <tr><td>Teleop Cmd (5,996 sent)</td>
-                        <td><span class="badge-yes">99.9% / 5,991</span><br><small>avg delay 646 &mu;s</small></td>
-                        <td><span class="badge-yes">99.9% / 5,989</span><br><small>avg delay 545 &mu;s</small></td>
-                        <td><span class="badge-yes">99.8% / 5,986</span><br><small>avg delay 636 &mu;s</small></td></tr>
+                    <!-- Spatial Sensor group -->
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td rowspan="2" style="padding:12px 16px; color:var(--text-muted); font-style:italic; vertical-align:middle; border-right:1px solid var(--border);">Spatial Sensor</td>
+                        <td style="padding:12px 16px; font-weight:500;">LiDAR</td>
+                        <td style="padding:12px 16px; text-align:center; background:rgba(34,197,94,0.15); color:var(--accent-green); font-weight:700; border-radius:4px;">99.96</td>
+                        <td style="padding:12px 16px; text-align:center; color:var(--text-muted);">—</td>
+                        <td style="padding:12px 16px; text-align:center;">99.925</td>
+                        <td style="padding:12px 16px; text-align:center; color:var(--accent-green); font-weight:600;">A1</td>
+                    </tr>
+                    <tr style="border-bottom:2px solid var(--border);">
+                        <td style="padding:12px 16px; font-weight:500;">Depth</td>
+                        <td style="padding:12px 16px; text-align:center; color:var(--text-muted);">—</td>
+                        <td style="padding:12px 16px; text-align:center; background:rgba(249,115,22,0.12); color:var(--accent-orange); font-weight:600;">26.43</td>
+                        <td style="padding:12px 16px; text-align:center; background:rgba(239,68,68,0.2); color:#ef4444; font-weight:700;">8.299</td>
+                        <td style="padding:12px 16px; text-align:center; color:var(--accent-orange); font-weight:600;">A2</td>
+                    </tr>
+                    <!-- Thermal -->
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td colspan="2" style="padding:12px 16px; font-weight:500;">Thermal</td>
+                        <td style="padding:12px 16px; text-align:center;">99.88</td>
+                        <td style="padding:12px 16px; text-align:center;">99.88</td>
+                        <td style="padding:12px 16px; text-align:center;">99.792</td>
+                        <td style="padding:12px 16px; text-align:center; color:var(--accent-green); font-weight:600;">A1, A2</td>
+                    </tr>
+                    <!-- Gas -->
+                    <tr>
+                        <td colspan="2" style="padding:12px 16px; font-weight:500;">Gas</td>
+                        <td style="padding:12px 16px; text-align:center;">99.92</td>
+                        <td style="padding:12px 16px; text-align:center;">99.5</td>
+                        <td style="padding:12px 16px; text-align:center; background:rgba(34,197,94,0.1); color:var(--accent-green); font-weight:600;">99.916</td>
+                        <td style="padding:12px 16px; text-align:center; color:var(--accent-purple); font-weight:600;">A3</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
+
         <div class="ml-limitations" style="margin-top:32px;">
             <h3>🔍 Key Findings</h3>
             <ul>
-                <li>LiDAR stream achieves ~51% PDR in AP1 (14,359/27,907 received) and ~50% in AP3 — channel saturation from high packet rate</li>
-                <li>AP2 RGB-D depth camera sends 250,001 packets, achieving only <strong>8.2% PDR</strong> (20,590 received) — severe Wi-Fi congestion</li>
-                <li>AP3 Hybrid reduces depth to 150,001 packets via QoS scheduling, improving depth PDR to <strong>11.4%</strong> (17,050 received)</li>
-                <li>Safety-critical streams (thermal, gas, teleop) achieve <strong>99.4–99.96% PDR</strong> in all approaches — QoS successfully isolates them</li>
-                <li>Lowest avg end-to-end delay is in AP3 LiDAR stream (~1.26 s) vs AP2 depth stream (~1.92 s) — Hybrid QoS scheduling works</li>
-                <li>Teleop commands maintain sub-millisecond delivery (545–646 µs avg) regardless of sensor congestion</li>
+                <li><strong>PDR:</strong> LiDAR achieves ~99.96% PDR in A1 and 99.925% in A3 — excellent reliability on a dedicated channel. Depth camera drops to only 26.43% (A2) and 8.30% (A3) due to high packet volume and 802.11 congestion</li>
+                <li><strong>Throughput:</strong> Depth camera generates 3.96 Mbps on A2 (single channel), but when shared with LiDAR in A3 it saturates and drops to 1.24 Mbps — confirming the dual-channel advantage of A1</li>
+                <li><strong>Delay:</strong> A1 LiDAR achieves a mean delay of just 85 ms and jitter of 120 ms. A2 RGB-D spikes to 30,000 ms max delay and 1,243 ms jitter — unusable for real-time SAR feedback</li>
+                <li><strong>Safety-critical streams</strong> (Thermal, Gas) maintain 99.5–99.92% PDR across all approaches — QoS priority successfully isolates them from congestion</li>
+                <li><strong>SNIR CDF:</strong> A1 LiDAR and A3 LiDAR both reach CDF ~0.94 by SNIR=6000, while A2 Depth and A3 RGB converge slower, reflecting greater channel contention on single-channel architectures</li>
             </ul>
         </div>
+
     </div>
 </section>
 
@@ -3860,59 +3880,127 @@ function updateChartTheme(isLight) {
 
 // ─── NETWORK TELEMETRY CHARTS ───
 (function() {
-    var baseOpts = {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 11 } } },
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 30 } }
-        }
-    };
+    var tick = { color: '#94a3b8', font: { size: 10 } };
+    var gridLine = 'rgba(255,255,255,0.05)';
+    var noGrid = { display: false };
 
-    // PDR Chart
+    // ── Chart 1: PDR — Grouped Bar (Sensor × Approach) ──
     new Chart(document.getElementById('netPdrChart'), {
         type: 'bar',
         data: {
-            labels: ['LiDAR(AP1)','RGB Cam(AP1)','Depth(AP2)','LiDAR(AP3)','Depth(AP3)','Thermal(all)','Gas(all)','Teleop(all)'],
-            datasets: [{ label: 'PDR %',
-                data: [51.4, 52.9, 8.2, 50.1, 11.4, 99.9, 99.9, 99.9],
-                backgroundColor: ['#22c55e','#22c55e','#f97316','#a855f7','#a855f7','#38bdf8','#38bdf8','#38bdf8'],
-                borderWidth: 0, borderRadius: 3
-            }]
+            labels: ['LiDAR', 'Depth', 'Thermal', 'Gas'],
+            datasets: [
+                { label: 'A1 — Dual Channel',          data: [99.96, null,  99.88,  99.92],  backgroundColor: 'rgba(34,197,94,0.75)',  borderColor:'#22c55e', borderWidth:1, borderRadius:3 },
+                { label: 'A2 — Single Channel',        data: [null,  26.43, 99.88,  99.5],   backgroundColor: 'rgba(249,115,22,0.75)', borderColor:'#f97316', borderWidth:1, borderRadius:3 },
+                { label: 'A3 — Optimized Single',      data: [99.925,8.299, 99.792, 99.916], backgroundColor: 'rgba(168,85,247,0.75)', borderColor:'#a855f7', borderWidth:1, borderRadius:3 }
+            ]
         },
-        options: Object.assign({}, baseOpts, {
+        options: {
+            responsive: true, maintainAspectRatio: false,
             plugins: {
-                legend: { display: false },
-                tooltip: { callbacks: { label: function(c){ return c.parsed.y.toFixed(1)+'%'; } } }
+                legend: { display: true, labels: { color:'#94a3b8', font:{size:10}, boxWidth:12 } },
+                tooltip: { callbacks: { label: c => c.dataset.label + ': ' + (c.raw !== null ? c.raw.toFixed(2)+'%' : 'N/A') } }
             },
             scales: {
-                y: { min:0, max:100, ticks: { callback: function(v){ return v+'%'; }, color:'#94a3b8', font:{size:11} }, grid:{color:'rgba(255,255,255,0.05)'} },
-                x: { grid:{display:false}, ticks:{color:'#94a3b8', font:{size:10}, maxRotation:30} }
+                x: { grid: noGrid, ticks: tick },
+                y: { min: 0, max: 105, grid: { color: gridLine }, ticks: { ...tick, callback: v => v+'%' } }
             }
-        })
+        }
     });
 
-    // Sent packets — simple grouped bar, no stacking (less GPU cost)
+    // ── Chart 2: Throughput — Grouped Bar (Sensor × Approach) ──
     new Chart(document.getElementById('netSentChart'), {
         type: 'bar',
         data: {
-            labels: ['AP1 (LiDAR+RGB)', 'AP2 (Depth)', 'AP3 (Hybrid)'],
+            labels: ['LiDAR', 'Depth', 'Thermal', 'Gas'],
             datasets: [
-                { label: 'LiDAR',        data: [27907,  0,      27907],  backgroundColor: '#22c55e' },
-                { label: 'RGB Cam',      data: [6000,   0,      0],      backgroundColor: '#38bdf8' },
-                { label: 'Depth Cam',    data: [0,      250001, 150001], backgroundColor: '#f97316' },
-                { label: 'Thermal+Gas',  data: [3595,   3595,   3595],   backgroundColor: '#eab308' }
+                { label: 'A1 — Dual Channel',     data: [2.23,   null,  0.08,   0.0025],  backgroundColor: 'rgba(34,197,94,0.75)',  borderColor:'#22c55e', borderWidth:1, borderRadius:3 },
+                { label: 'A2 — Single Channel',   data: [null,   3.964, 0.0799, 0.00254], backgroundColor: 'rgba(249,115,22,0.75)', borderColor:'#f97316', borderWidth:1, borderRadius:3 },
+                { label: 'A3 — Optimized Single', data: [2.231,  1.245, 0.07983,0.00255], backgroundColor: 'rgba(168,85,247,0.75)', borderColor:'#a855f7', borderWidth:1, borderRadius:3 }
             ]
         },
-        options: Object.assign({}, baseOpts, {
-            plugins: { legend: { display: true, labels: { color:'#94a3b8', boxWidth:10, font:{size:10} } } },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, labels: { color:'#94a3b8', font:{size:10}, boxWidth:12 } },
+                tooltip: { callbacks: { label: c => c.dataset.label + ': ' + (c.raw !== null ? c.raw + ' Mbps' : 'N/A') } }
+            },
             scales: {
-                x: { stacked: true, grid:{display:false}, ticks:{color:'#94a3b8',font:{size:10}} },
-                y: { stacked: true, grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'#94a3b8',font:{size:10}} }
+                x: { grid: noGrid, ticks: tick },
+                y: { grid: { color: gridLine }, ticks: { ...tick, callback: v => v+' Mbps' }, title: { display: true, text: 'Throughput (Mbps)', color:'#64748b', font:{size:10} } }
             }
-        })
+        }
+    });
+
+    // ── Chart 3: Delay — Dual-Axis (Mean+Jitter left, Max right) ──
+    new Chart(document.getElementById('netDelayChart'), {
+        type: 'bar',
+        data: {
+            labels: ['A1 LiDAR', 'A2 RGB-D', 'A3 LiDAR', 'A3 RGB-D'],
+            datasets: [
+                { label: 'Mean Delay (ms)',  data: [85, 180, 250, 821],    backgroundColor: 'rgba(56,189,248,0.75)',  borderColor:'#38bdf8', borderWidth:1, borderRadius:3, yAxisID:'y' },
+                { label: 'Jitter (ms)',      data: [120,1243,150,1682],    backgroundColor: 'rgba(234,179,8,0.75)',   borderColor:'#eab308', borderWidth:1, borderRadius:3, yAxisID:'y' },
+                { label: 'Max Delay (ms)',   data: [250,30000,1000,15500], backgroundColor: 'rgba(239,68,68,0.3)',    borderColor:'#ef4444', borderWidth:1, borderRadius:3, type:'bar', yAxisID:'y2' }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, labels: { color:'#94a3b8', font:{size:10}, boxWidth:12 } },
+                tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.raw.toLocaleString() + ' ms' } }
+            },
+            scales: {
+                x: { grid: noGrid, ticks: tick },
+                y:  { position:'left',  grid: { color: gridLine }, ticks: { ...tick, callback: v => v+' ms' }, title: { display:true, text:'Mean / Jitter (ms)', color:'#64748b', font:{size:9} } },
+                y2: { position:'right', grid: { display:false },   ticks: { ...tick, callback: v => (v/1000).toFixed(0)+'k ms' }, title: { display:true, text:'Max Delay (ms)', color:'#64748b', font:{size:9} } }
+            }
+        }
+    });
+
+    // ── Chart 4: SNIR CDF — Line Graph per Approach ──
+    // Approach 1 data (LiDAR, Depth, Gas, Thermal)
+    var a1snir=[0,500,1000,1500,2000,2500,3000,3500,4000,4500,5000,6000,7000,8000,9000,10000,12000,15000,20000,30000,45000];
+    var a1l=[0,0.564,0.703,0.765,0.807,0.84,0.866,0.887,0.905,0.92,0.932,0.943,0.951,0.958,0.964,0.969,0.977,0.985,0.99,0.998,1.0];
+    var a1d=[0,0.399,0.542,0.61,0.66,0.703,0.736,0.764,0.789,0.81,0.829,0.86,0.885,0.905,0.92,0.935,0.955,0.975,0.99,0.997,1.0];
+    var a1t=[0,0.562,0.724,0.803,0.857,0.891,0.916,0.934,0.947,0.957,0.965,0.975,0.982,0.987,0.991,0.994,0.997,0.998,0.999,1.0,1.0];
+    var a1g=[0,0.362,0.546,0.644,0.71,0.758,0.795,0.824,0.848,0.867,0.883,0.907,0.925,0.939,0.95,0.959,0.972,0.983,0.991,0.997,1.0];
+    // Approach 2 — sparse (Depth, Thermal, Gas)
+    var a2snir=[400,800,1200,1600,2000,2400,3200,4000,4800,6400,8000,12000,20000];
+    var a2d=[null,0.808,null,0.897,null,0.929,0.949,0.963,0.973,0.986,0.993,0.998,1.0];
+    var a2t=[0.397,0.627,0.747,0.822,0.873,0.909,0.955,0.98,null,null,0.998,null,1.0];
+    var a2g=[null,0.44,null,0.567,null,0.658,0.73,0.786,0.831,0.893,0.933,0.975,1.0];
+    // Approach 3 (LiDAR, RGB, Thermal, Gas)
+    var a3snir=[0,200,400,800,1200,1600,2000,2400,2800,3200,4000,6000,10000,20000];
+    var a3l=[0,0.42,0.57,0.81,0.89,0.93,0.96,0.97,0.98,0.99,1.0,1.0,1.0,1.0];
+    var a3r=[0,0.0,0.01,0.05,0.18,0.32,0.48,0.61,0.73,0.82,0.9,0.96,0.99,1.0];
+    var a3t=[0,0.38,0.43,0.66,0.78,0.85,0.9,0.93,0.96,0.98,0.99,1.0,1.0,1.0];
+    var a3g=[0,0.31,0.35,0.56,0.69,0.77,0.83,0.88,0.91,0.95,0.98,0.995,0.999,1.0];
+
+    new Chart(document.getElementById('netSnirChart'), {
+        type: 'line',
+        data: {
+            datasets: [
+                { label:'A1 LiDAR',   data: a1snir.map((x,i)=>({x,y:a1l[i]})),  borderColor:'#22c55e', backgroundColor:'transparent', pointRadius:2, borderWidth:2, tension:0.3 },
+                { label:'A1 Depth',   data: a1snir.map((x,i)=>({x,y:a1d[i]})),  borderColor:'#22c55ee0', backgroundColor:'transparent', pointRadius:2, borderWidth:1.5, tension:0.3, borderDash:[4,3] },
+                { label:'A1 Thermal', data: a1snir.map((x,i)=>({x,y:a1t[i]})),  borderColor:'#86efac', backgroundColor:'transparent', pointRadius:2, borderWidth:1.5, tension:0.3, borderDash:[2,4] },
+                { label:'A2 Depth',   data: a2snir.map((x,i)=>({x,y:a2d[i]})),  borderColor:'#f97316', backgroundColor:'transparent', pointRadius:2, borderWidth:2, tension:0.3 },
+                { label:'A2 Thermal', data: a2snir.map((x,i)=>({x,y:a2t[i]})),  borderColor:'#fb923c', backgroundColor:'transparent', pointRadius:2, borderWidth:1.5, tension:0.3, borderDash:[4,3] },
+                { label:'A3 LiDAR',   data: a3snir.map((x,i)=>({x,y:a3l[i]})),  borderColor:'#a855f7', backgroundColor:'transparent', pointRadius:2, borderWidth:2, tension:0.3 },
+                { label:'A3 RGB',     data: a3snir.map((x,i)=>({x,y:a3r[i]})),  borderColor:'#818cf8', backgroundColor:'transparent', pointRadius:2, borderWidth:1.5, tension:0.3, borderDash:[4,3] },
+                { label:'A3 Thermal', data: a3snir.map((x,i)=>({x,y:a3t[i]})),  borderColor:'#c4b5fd', backgroundColor:'transparent', pointRadius:2, borderWidth:1.5, tension:0.3, borderDash:[2,4] }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: true, labels: { color:'#94a3b8', font:{size:9}, boxWidth:12, padding:8 } } },
+            scales: {
+                x: { type:'linear', title:{display:true,text:'SNIR',color:'#64748b',font:{size:10}}, grid:{color:gridLine}, ticks:tick, min:0, max:20000 },
+                y: { min:0, max:1, title:{display:true,text:'CDF',color:'#64748b',font:{size:10}}, grid:{color:gridLine}, ticks:{...tick, callback:v=>v.toFixed(1)} }
+            }
+        }
     });
 })();
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const ctx = document.getElementById('comparisonSpiderChart').getContext('2d');
