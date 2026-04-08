@@ -1654,61 +1654,6 @@
 
         </div>
 
-        <!-- ── Battery & Power ─────────────────────────────────── -->
-        <div style="margin-bottom:60px;">
-            <h3 style="color:var(--accent-green);font-size:1.25rem;margin-bottom:8px;">⚡ Battery Discharge &amp; Power Modelling</h3>
-            <p style="color:var(--text-muted);max-width:780px;line-height:1.7;margin-bottom:28px;">
-                Using a calibrated Peukert discharge model (n&nbsp;=&nbsp;1.08) for an 11.1&nbsp;V 3S LiPo battery, the simulation predicts runtime
-                for each approach at its measured power draw. The model confirms our physically measured battery ETAs and
-                validates the Hybrid approach's trade-off: highest power draw (49.9&nbsp;W) but shortest field runtime (30&nbsp;min).
-            </p>
-
-            <!-- stat pills -->
-            <div class="hero-stats" style="margin-bottom:28px;">
-                <div class="hero-stat"><div class="value" style="color:var(--accent-green);">37 min</div><div class="label">AP1 LiDAR · 42.5 W</div></div>
-                <div class="hero-stat"><div class="value" style="color:var(--accent-orange);">38 min</div><div class="label">AP2 RGB-D · 42.3 W</div></div>
-                <div class="hero-stat"><div class="value" style="color:var(--accent-purple);">30 min</div><div class="label">AP3 Hybrid · 49.9 W</div></div>
-                <div class="hero-stat"><div class="value">1.08</div><div class="label">Peukert Exponent (3S LiPo)</div></div>
-            </div>
-
-            <div class="matlab-container approach-tabs" style="margin-bottom: 30px; margin-top: 10px;">
-                <div class="approach-tab active" data-approach="1" onclick="switchApproach(1)">
-                    <span class="tab-icon">🟢</span> Approach 1 — LiDAR
-                </div>
-                <div class="approach-tab" data-approach="2" onclick="switchApproach(2)">
-                    <span class="tab-icon">🟠</span> Approach 2 — RGB-D
-                </div>
-                <div class="approach-tab" data-approach="3" onclick="switchApproach(3)">
-                    <span class="tab-icon">🟣</span> Approach 3 — Hybrid
-                </div>
-            </div>
-
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(480px,1fr));gap:50px;margin-bottom:50px;">
-                <div style="text-align:center;">
-                    <div class="matlab-battery-card" style="position:relative; width:100%; height:400px; border-radius:12px; margin-bottom:20px; padding:15px;">
-                        <canvas id="batteryDischargeChart"></canvas>
-                    </div>
-                    <h3 style="font-size:1.1rem;color:var(--text-color);font-weight:600;margin:0;">📉 Voltage Discharge Curves</h3>
-                </div>
-                <div style="text-align:center;">
-                    <div class="matlab-battery-card" style="position:relative; width:100%; height:400px; border-radius:12px; margin-bottom:20px; padding:15px;">
-                        <canvas id="batteryRuntimeChart"></canvas>
-                    </div>
-                    <h3 style="font-size:1.1rem;color:var(--text-color);font-weight:600;margin:0;">🕐 Runtime Comparison</h3>
-                </div>
-            </div>
-
-            <div class="ml-limitations" style="margin-top:20px;">
-                <h3>📌 Key Insights</h3>
-                <ul>
-                    <li>AP1 and AP2 draw nearly identical power (42.5 W vs 42.3 W) giving near-equal runtimes (37 vs 38 min) — the LiDAR adds only 0.2 W over the Orbbec for comparable tasks</li>
-                    <li>AP3 Hybrid runs both sensors simultaneously: the extra 7.4–7.6 W reduces runtime by ~8 minutes versus AP1/AP2</li>
-                    <li>DC motors dominate at 24 W (~56% of total power) — speed reduction or sleep-mode driving would extend runtime across all approaches</li>
-                    <li>Battery cutoff is 9.9 V (3.3 V/cell) — the simulation stops here to prevent LiPo damage</li>
-                </ul>
-            </div>
-        </div>
-
         <!-- ── Motor PID Control ───────────────────────────────── -->
         <div style="margin-bottom:60px;padding-top:40px;border-top:1px solid var(--border);">
             <h3 style="color:var(--accent-cyan);font-size:1.25rem;margin-bottom:8px;">⚙️ Motor PID Controller Design</h3>
@@ -2788,29 +2733,7 @@ function updateChartsHighlight(n) {
         window.spiderChart.update();
     }
 
-    if (window.batteryDischargeChart) {
-        window.batteryDischargeChart.data.datasets.forEach((dataset, i) => {
-            const bases = ['46, 160, 67', '210, 105, 30', '138, 43, 226'];
-            const isHovered = i === index;
-            dataset.borderColor = isHovered ? `rgba(${bases[i]}, 1)` : `rgba(${bases[i]}, 0.25)`;
-            dataset.borderWidth = isHovered ? 4 : 2;
-            dataset.order = isHovered ? 0 : 1;
-        });
-        window.batteryDischargeChart.update();
-    }
 
-    if (window.batteryRuntimeChart) {
-        window.batteryRuntimeChart.data.datasets.forEach((dataset) => {
-            const newBg = [];
-            const bases = ['46, 160, 67', '210, 105, 30', '138, 43, 226'];
-            for (let i = 0; i < 3; i++) {
-                const isHovered = i === index;
-                newBg.push(`rgba(${bases[i]}, ${isHovered ? 1 : 0.25})`);
-            }
-            dataset.backgroundColor = newBg;
-        });
-        window.batteryRuntimeChart.update();
-    }
 }
 
 // ─── Magnetic Buttons ───
