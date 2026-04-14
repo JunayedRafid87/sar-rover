@@ -3350,7 +3350,7 @@
                             <td><span class="badge-rank2">৳ 4.05 / point</span></td>
                         </tr>
                         <tr style="border-top:2px solid var(--border-color);">
-                            <td style="font-weight:700;">Manual SAR Team Cost Replaced [1][2]</td>
+                            <td style="font-weight:700;">Manual SAR Team Cost Replaced</td>
                             <td colspan="3" style="text-align:center;">A 3-person FSCD team is estimated at
                                 ~৳3,500/deployment (wages based on Grade-17 pay scale [1] + logistics [2]). Each rover
                                 deployment replaces 4–6 hours of high-risk manual search in collapsed structures [3]
@@ -3358,9 +3358,9 @@
                         </tr>
                         <tr>
                             <td style="font-weight:700;">Operational Cost / Mission</td>
-                            <td>৳ 343 <br><small style="color:var(--text-muted);">(battery [6] + 10% maint. [5])</small></td>
-                            <td>৳ 328 <br><small style="color:var(--text-muted);">(battery [6] + lowest power maint. [5])</small></td>
-                            <td>৳ 389 <br><small style="color:var(--text-muted);">(battery [6] + heavy duty maint. [5])</small></td>
+                            <td>৳ 343 <br><small style="color:var(--text-muted);">(battery [4] + 10% maint. [5])</small></td>
+                            <td>৳ 328 <br><small style="color:var(--text-muted);">(battery [4] + lowest power maint. [5])</small></td>
+                            <td>৳ 389 <br><small style="color:var(--text-muted);">(battery [4] + heavy duty maint. [5])</small></td>
                         </tr>
                         <tr>
                             <td style="font-weight:700; color:var(--accent-green);">Net Savings / Mission</td>
@@ -3429,11 +3429,8 @@
                     [3] R. R. Murphy, <em>Disaster Robotics</em>, Cambridge, MA, USA: MIT Press, 2014, pp. 15–42.
                     Documents field evidence of ground robots navigating 60+ ft into rubble replacing 4–6 hr manual
                     search.<br>
-                    [4] NIST, “Standard test methods for response robots,” <em>Nat. Inst. of Standards and
-                        Technology</em>, 2020. [Online]. Available:
-                    https://www.nist.gov/el/intelligent-systems-division-73500/standard-test-methods-response-robots<br>
-                    [5] U.S. Department of Defense, “Unmanned Systems Integrated Roadmap 2017-2042,” Washington D.C., 2017. Establishes life-cycle operational and maintenance costs of tactical UGV fleets at approximately 10% of procurement capital cost annually.<br>
-                    [6] M. S. E. Mahmoud et al., “Life cycle assessment of lithium-ion batteries used in robotic applications,” <em>IEEE Access</em>, vol. 9, pp. 456-465, 2021. Battery deterioration calculated based on 150 cycles under deep-discharge autonomous operating conditions.
+                    [4] M. S. E. Mahmoud et al., “Life cycle assessment of lithium-ion batteries used in robotic applications,” <em>IEEE Access</em>, vol. 9, pp. 456-465, 2021. Battery deterioration calculated based on 150 cycles under deep-discharge autonomous operating conditions.<br>
+                    [5] U.S. Department of Defense, “Unmanned Systems Integrated Roadmap 2017-2042,” Washington D.C., 2017. Establishes life-cycle operational and maintenance costs of tactical UGV fleets at approximately 10% of procurement capital cost annually.
                 </p>
             </div>
 
@@ -3449,18 +3446,30 @@
 
             <!-- ─── Performance Analytics ─── -->
             <div class="section-header" style="margin-top:80px;">
-                <h2>Performance Analytics [4]</h2>
-                <p>Visual breakdown of power, data, and sensor characteristics based on standard testing methods [4]</p>
+                <h2>Performance Analytics</h2>
+                <p>Visual breakdown of power, data, and sensor characteristics based on standard testing methods [6]</p>
             </div>
             <div class="charts-grid">
                 <div class="chart-card">
                     <h3>⚡ Power Consumption Breakdown (W)</h3>
                     <canvas id="powerChart"></canvas>
+                    <p style="color:var(--text-muted); font-size:0.75rem; margin-top:12px; text-align:center;">
+                        Simulated values mathematically scaled assuming a 70% combined electromechanical 
+                        powertrain efficiency baseline for DC geared motors driven by H-bridges [7][8].
+                    </p>
                 </div>
                 <div class="chart-card">
                     <h3>📊 Point Cloud &amp; Data Comparison</h3>
                     <canvas id="pointsChart"></canvas>
                 </div>
+            </div>
+
+            <div style="text-align:justify; margin-top:16px; margin-right:8px; opacity:0.6;">
+                <p style="color:var(--text-muted); font-size:0.75rem; margin:0; line-height: 1.5;">
+                    [6] NIST, “Standard test methods for response robots,” <em>Nat. Inst. of Standards and Technology</em>, 2020. [Online]. Available: https://www.nist.gov/el/intelligent-systems-division-73500/standard-test-methods-response-robots<br>
+                    [7] R. Siegwart, I. R. Nourbakhsh, and D. Scaramuzza, <em>Introduction to Autonomous Mobile Robots</em>. MIT Press, 2011. Establishes ~60-75% powertrain efficiency for small UGV modeling.<br>
+                    [8] A. Kelly, <em>Mobile Robotics: Mathematics, Models, and Methods</em>. Cambridge University Press, 2013.
+                </p>
             </div>
 
             <div class="section-header" style="margin-top:100px;">
