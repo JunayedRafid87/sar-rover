@@ -1853,39 +1853,40 @@
             transform: translateX(-50%) scale(1);
         }
 
-        /* ── v11m cyan theme ── */
+        /* ── v11m blue theme ── */
         #ml-hero-v11m .ml-stat {
-            border-color: rgba(6, 182, 212, 0.25);
-            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.1);
+            border-color: rgba(58, 134, 161, 0.3);
+            box-shadow: 0 4px 20px rgba(58, 134, 161, 0.12);
         }
         #ml-hero-v11m .ml-stat:hover {
-            border-color: rgba(6, 182, 212, 0.5);
-            box-shadow: 0 8px 32px rgba(6, 182, 212, 0.25);
+            border-color: rgba(58, 134, 161, 0.6);
+            box-shadow: 0 8px 32px rgba(58, 134, 161, 0.3);
         }
         #ml-hero-v11m .ml-stat .ml-val {
             font-size: 1.6rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #06b6d4, #818cf8);
+            background: linear-gradient(94deg, #7499B8 0%, #3A86A1 52%, #1D345C 99%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         /* ── v8n red theme ── */
         #ml-hero-v8n .ml-stat {
-            border-color: rgba(250, 80, 83, 0.25);
-            box-shadow: 0 4px 20px rgba(250, 80, 83, 0.1);
+            border-color: rgba(161, 58, 58, 0.3);
+            box-shadow: 0 4px 20px rgba(161, 58, 58, 0.12);
         }
         #ml-hero-v8n .ml-stat:hover {
-            border-color: rgba(250, 80, 83, 0.5);
-            box-shadow: 0 8px 32px rgba(250, 80, 83, 0.25);
+            border-color: rgba(161, 58, 58, 0.6);
+            box-shadow: 0 8px 32px rgba(161, 58, 58, 0.3);
         }
         #ml-hero-v8n .ml-stat .ml-val {
             font-size: 1.6rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #FA5053, #ff7875);
+            background: linear-gradient(94deg, #B87474 0%, #A13A3A 52%, #5C1D1D 99%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
 
         .ml-stat .ml-label {
             color: var(--text-muted);
@@ -2064,6 +2065,24 @@
             font-weight: 700;
             margin-bottom: 8px;
             color: var(--accent-cyan);
+        }
+
+        /* ─── Project Timeline Container ─── */
+        .timeline-container {
+            background: var(--bg-card);
+            border: 1px solid rgba(var(--approach-rgb, 6, 182, 212), 0.2);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(var(--approach-rgb, 6, 182, 212), 0.05);
+            transition: all 0.4s ease;
+        }
+
+        .timeline-container:hover {
+            border: 1px solid rgba(var(--approach-rgb, 6, 182, 212), 0.5);
+            box-shadow: 0 0 15px rgba(var(--approach-rgb, 6, 182, 212), 0.15), 
+                        0 0 40px rgba(var(--approach-rgb, 6, 182, 212), 0.1), 
+                        0 0 80px rgba(var(--approach-rgb, 6, 182, 212), 0.05);
         }
 
         /* ─── Team & ATC Section ─── */
@@ -3122,6 +3141,12 @@
                             <td><span class="badge-rank3">2.79 Wh (10.2%)</span></td>
                         </tr>
                         <tr>
+                            <td>Mapping Quality</td>
+                            <td><span class="badge-rank2">Medium</span></td>
+                            <td><span class="badge-rank3">Low</span></td>
+                            <td><span class="badge-rank1">High</span></td>
+                        </tr>
+                        <tr>
                             <td>Data Generated</td>
                             <td><span class="badge-rank1">651.9 MB</span></td>
                             <td><span class="badge-rank2">2,845.0 MB</span></td>
@@ -3925,7 +3950,7 @@
             </div>
             <!-- Video player -->
             <div class="net-video-card">
-                <video id="net-sim-video" src="omnet_ap1.mp4" poster="omnet_ap1.png" controls loop muted playsinline
+                <video id="net-sim-video" poster="omnet_ap1.png" controls loop muted playsinline
                     style="width:100%;display:block;border-radius:var(--radius);">
                 </video>
             </div>
@@ -4074,11 +4099,12 @@
             <!-- ── Model Selector Tabs ── -->
             <div class="approach-tabs" style="margin-bottom:32px;">
                 <div class="approach-tab active" data-model="v11m" onclick="switchModel('v11m')">
-                    <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#818cf8);vertical-align:middle;margin-right:4px;box-shadow:0 0 8px rgba(6,182,212,0.5);"></span> YOLOv11m <small style="opacity:0.6;">(Latest)</small>
+                    <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:linear-gradient(94deg,#7499B8,#3A86A1,#1D345C);vertical-align:middle;margin-right:4px;box-shadow:0 0 8px rgba(58,134,161,0.5);"></span> YOLOv11m <small style="opacity:0.6;">(Latest)</small>
                 </div>
                 <div class="approach-tab" data-model="v8n" onclick="switchModel('v8n')">
-                    <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,#FA5053,#ff7875);vertical-align:middle;margin-right:4px;box-shadow:0 0 8px rgba(250,80,83,0.5);"></span> YOLOv8n <small style="opacity:0.6;">(Baseline)</small>
+                    <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:linear-gradient(94deg,#B87474,#A13A3A,#5C1D1D);vertical-align:middle;margin-right:4px;box-shadow:0 0 8px rgba(161,58,58,0.5);"></span> YOLOv8n <small style="opacity:0.6;">(Baseline)</small>
                 </div>
+
             </div>
 
             <!-- ── Hero Stats v8n ── -->
@@ -4102,6 +4128,8 @@
                 <div class="ml-stat" data-tip="Thermal images used for training"><div class="ml-val">13,922</div><div class="ml-label">Training Images</div></div>
                 <div class="ml-stat" data-tip="Full passes over the training dataset"><div class="ml-val">60</div><div class="ml-label">Epochs</div></div>
             </div>
+
+
 
             <!-- ── YOLOv8n Panel ── -->
             <div class="ml-model-panel" id="ml-panel-v8n" style="display:none; margin-top:30px;">
@@ -4139,6 +4167,8 @@
                 </div>
             </div>
 
+
+
             <div class="charts-grid" style="margin-top: 32px; grid-template-columns: 1fr 1fr;">
                 <div class="chart-card">
                     <h3>📊 mAP@50 — Training Progress</h3>
@@ -4159,7 +4189,7 @@
             </div>
 
             <div class="ml-limitations">
-                <h3>⚠️ Known Limitations and Future Work</h3>
+                <h3>⚠️ Key Findings &amp; Future Work</h3>
                 <ul>
                     <li>YOLOv11m achieves 89.2% mAP@50, a significant jump from YOLOv8n 82.5% baseline</li>
                     <li>Recall improved from 71.8% to 80.3%, reducing missed detections of partially occluded survivors</li>
@@ -4172,6 +4202,25 @@
         </div>
     </section>
 
+    <!-- ─── Project Timeline ─── -->
+    <section class="reveal" style="padding:60px 0;">
+        <div class="container">
+            <div class="section-header">
+                <h2>📅 Project Timeline</h2>
+                <p>FYDP-D development milestones — Gantt chart overview</p>
+            </div>
+            <div class="timeline-container">
+                <!-- Dark mode version -->
+                <img src="timeline/gantt_dark.png" alt="Project Timeline — Gantt Chart"
+                    class="diagram-dark"
+                    style="width:100%; height:auto; border-radius:8px;">
+                <!-- Light mode version -->
+                <img src="timeline/gantt_light.png" alt="Project Timeline — Gantt Chart"
+                    class="diagram-light"
+                    style="width:100%; height:auto; border-radius:8px;">
+            </div>
+        </div>
+    </section>
 
 
     <!-- ─── Team & ATC Section ─── -->
@@ -4609,7 +4658,7 @@
             const netVid = document.getElementById('net-sim-video');
             if (netVid) {
                 netVid.pause();
-                netVid.src = 'omnet_ap' + n + '.mp4';
+                netVid.src = 'omnet_ap' + n + '.mp4?t=' + Date.now();
                 netVid.poster = 'omnet_ap' + n + '.png';
                 netVid.load();
                 netVid.play().catch(function () { });
@@ -4890,7 +4939,7 @@
             document.getElementById('ml-panel-v8n').style.display = model === 'v8n' ? '' : 'none';
             document.getElementById('ml-panel-v11m').style.display = model === 'v11m' ? '' : 'none';
             // Update cursor theme
-            var rgbMap = { v11m: '6, 182, 212', v8n: '250, 80, 83' };
+            var rgbMap = { v11m: '58, 134, 161', v8n: '161, 58, 58' };
             document.documentElement.style.setProperty('--approach-rgb', rgbMap[model] || '6, 182, 212');
         }
 
@@ -5230,6 +5279,9 @@
             initViewer();
             // Set initial --approach-rgb for approach 1 (green)
             document.documentElement.style.setProperty('--approach-rgb', '34,197,94');
+            // Set initial network sim video with cache-bust
+            const netVidInit = document.getElementById('net-sim-video');
+            if (netVidInit) { netVidInit.src = 'omnet_ap1.mp4?t=' + Date.now(); netVidInit.load(); }
             initCharts();
             initMLCharts();
             initScrollReveal();
