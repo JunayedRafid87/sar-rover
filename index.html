@@ -3082,6 +3082,14 @@
             }
         }
 
+        /* ── Mobile only: cost overview cards stack to 1-col ── */
+        @media (max-width: 768px) {
+            #cost-overview-cards {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+        }
+
     </style>
 </head>
 
@@ -3464,7 +3472,7 @@
 
 
             <!-- Cost Overview Cards -->
-            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:48px;">
+            <div id="cost-overview-cards" style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:48px;">
                 <div class="info-card" style="text-align:center; border-color:rgba(34,197,94,0.3);">
                     <div class="info-label" style="color:#22c55e;">🟢 Approach 1 — LiDAR</div>
                     <div class="info-value"
