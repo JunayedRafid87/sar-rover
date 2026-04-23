@@ -2981,10 +2981,10 @@
             .component-chip     { padding: 5px 10px; font-size: 0.78rem; }
 
             /* ── ML Detection stat boxes — FIX text overflow ──
-               Switch from nowrap flex to a 3-column wrapping grid.
-               This keeps each box wide enough for its label + value. */
+               No !important on display so JS switchModel() can still
+               hide the inactive panel with style.display='none'. */
             .ml-hero-stats {
-                display: grid !important;
+                display: grid;
                 grid-template-columns: repeat(3, 1fr);
                 flex-wrap: wrap;
                 gap: 8px;
