@@ -3070,6 +3070,18 @@
             .approach-tabs { flex-wrap: wrap; gap: 4px; }
         }
 
+        /* ── Desktop safeguard: always 2-col for team grid ≥ 769px ── */
+        @media (min-width: 769px) {
+            .team-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 40px;
+            }
+            /* Charts: restore 2-col on desktop (ML chart overrides mobile 1-col) */
+            .charts-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
     </style>
 </head>
 
