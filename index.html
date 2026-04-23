@@ -2868,6 +2868,169 @@
             box-shadow: 0 0 40px rgba(var(--approach-rgb, 6, 182, 212), 0.4), inset 0 0 20px rgba(var(--approach-rgb, 6, 182, 212), 0.2) !important;
             transition: none !important;
         }
+
+        /* ═══════════════════════════════════════════════════════
+           MOBILE-ONLY ENHANCEMENTS  (≤ 768px phone / tablet)
+           Desktop styles are NEVER touched by these rules.
+           ═══════════════════════════════════════════════════════ */
+
+        /* ── Disable custom cursor on touch devices ── */
+        @media (hover: none) and (pointer: coarse) {
+            body { cursor: auto !important; }
+            a, button, .viewer-btn, .approach-tab,
+            .proteus-tab, .section-dot, .viewer-canvas,
+            .ml-version-tab { cursor: pointer !important; }
+            .custom-cursor, .cursor-trail { display: none !important; }
+        }
+
+        @media (max-width: 768px) {
+            /* ── Tighter container padding on phones ── */
+            .container { padding: 0 16px; }
+
+            /* ── Nav: shrink brand, keep logo readable ── */
+            .nav-brand span { font-size: 0.8rem; }
+            .nav-brand img  { height: 26px; }
+            .nav-badge      { display: none !important; }
+            .theme-toggle   { padding: 5px 8px; font-size: 0.95rem; }
+
+            /* ── Hero: reduce heavy padding ── */
+            .hero {
+                padding: 80px 0 44px;
+                min-height: auto;
+            }
+            .hero h1 {
+                font-size: clamp(1.25rem, 5.5vw, 2rem);
+                line-height: 1.25;
+                margin-bottom: 14px;
+            }
+            .hero p { font-size: 0.88rem; }
+            .hero-badge {
+                font-size: 0.72rem;
+                padding: 5px 12px;
+                margin-bottom: 16px;
+            }
+
+            /* ── Hero logos: avoid overlap on narrow screens ── */
+            .hero-logo       { height: 36px; top: 16px; }
+            .hero-logo-left  { left: 12px; }
+            .hero-logo-right { right: 12px; }
+
+            /* ── Hero stats: 2-column layout for 5 items ── */
+            .hero-stats {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                max-width: 280px;
+                margin: 28px auto 0;
+            }
+            /* Make the last (5th) item span both columns so it centres */
+            .hero-stat:last-child { grid-column: 1 / -1; }
+            .hero-stat .value  { font-size: 1.4rem; }
+            .hero-stat .label  { font-size: 0.68rem; letter-spacing: 0.4px; }
+
+            /* ── Section headers ── */
+            .section-title    { font-size: clamp(1.3rem, 5vw, 1.9rem); }
+            .section-subtitle { font-size: 0.85rem; }
+            section           { padding: 56px 0; }
+
+            /* ── 3-D viewer ── */
+            .viewer-canvas { height: 260px; border-radius: 10px; }
+            .viewer-tabs   { gap: 6px; flex-wrap: wrap; }
+            .viewer-tab    { padding: 8px 12px; font-size: 0.78rem; }
+            .viewer-btn    { padding: 7px 10px; font-size: 0.78rem; }
+            .viewer-hint   { font-size: 0.72rem; padding: 4px 10px; }
+            .viewer-controls { gap: 4px; flex-wrap: wrap; }
+
+            /* Approach info cards: 2-col → 1-col on very narrow */
+            .approach-info { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .info-card     { padding: 12px; }
+            .info-card .info-value { font-size: 1.05rem; }
+
+            /* ── Comparison table: horizontal scroll ── */
+            .comparison-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 10px;
+            }
+            .comparison-table { min-width: 500px; }
+            .comparison-table thead th,
+            .comparison-table tbody td {
+                padding: 9px 11px;
+                font-size: 0.78rem;
+            }
+
+            /* ── Charts: single column ── */
+            .charts-grid { grid-template-columns: 1fr; gap: 14px; }
+            .chart-card  { padding: 14px; }
+
+            /* ── Methodology / Proteus tabs ── */
+            .proteus-tabs { gap: 6px; flex-wrap: wrap; }
+            .proteus-tab  { padding: 8px 12px; font-size: 0.78rem; }
+            .approach-layout { gap: 18px; }
+            .method-card     { padding: 18px; }
+
+            /* ── Proteus circuit section ── */
+            .proteus-content    { gap: 14px; }
+            .proteus-components { gap: 6px; }
+            .component-chip     { padding: 5px 10px; font-size: 0.78rem; }
+
+            /* ── ML Detection ── */
+            .ml-hero-stats { gap: 10px; }
+            .ml-stat-card  { padding: 12px; }
+            .ml-images-grid { gap: 10px; }
+            .ml-limitations { padding: 18px; }
+            .ml-limitations ul { gap: 6px; }
+
+            /* ── Team cards ── */
+            .team-grid { grid-template-columns: 1fr; gap: 14px; }
+            .team-card { padding: 20px; }
+            .team-logos { gap: 16px; }
+            .team-logos img { height: 48px; }
+
+            /* ── Footer ── */
+            footer { padding: 36px 0 20px; }
+            footer p { font-size: 0.78rem; }
+
+            /* ── Back-to-top: keep it off content ── */
+            .back-to-top { bottom: 20px; right: 16px; width: 42px; height: 42px; font-size: 1.1rem; }
+
+            /* ── Mobile menu links: larger tap targets ── */
+            .mobile-menu a { padding: 16px 32px; font-size: 1.15rem; }
+
+            /* ── Reduce heavy bg animations for battery ── */
+            .bg-glow { opacity: 0.04; }
+            #particles-canvas { opacity: 0.5; }
+
+            /* ── Method grid: single column ── */
+            .method-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Extra-small phones (≤ 430px) ── */
+        @media (max-width: 430px) {
+            .container { padding: 0 12px; }
+
+            .hero h1   { font-size: clamp(1.1rem, 6.5vw, 1.45rem); }
+            .hero-logo { height: 28px; top: 12px; }
+            .hero-logo-left  { left: 8px; }
+            .hero-logo-right { right: 8px; }
+
+            .hero-stats { max-width: 240px; gap: 10px; }
+            .hero-stat .value { font-size: 1.25rem; }
+
+            .viewer-canvas { height: 210px; }
+            .approach-info { grid-template-columns: 1fr; }
+
+            /* Methodology tabs stack vertically */
+            .proteus-tabs { flex-direction: column; align-items: stretch; }
+            .proteus-tab  { text-align: center; }
+
+            /* Viewer tabs wrap and shrink */
+            .viewer-tab { padding: 7px 10px; font-size: 0.74rem; }
+
+            /* Approach tabs for point cloud viewer */
+            .approach-tabs { flex-wrap: wrap; gap: 4px; }
+        }
+
     </style>
 </head>
 
