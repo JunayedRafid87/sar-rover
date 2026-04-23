@@ -2874,12 +2874,6 @@
            Desktop styles are NEVER touched by these rules.
            ═══════════════════════════════════════════════════════ */
 
-        /* ── Fix horizontal overflow / empty space when swiping left ── */
-        html, body {
-            overflow-x: hidden;
-            max-width: 100%;
-        }
-
         /* ── Disable custom cursor on touch devices ── */
         @media (hover: none) and (pointer: coarse) {
             body { cursor: auto !important; }
@@ -2890,6 +2884,11 @@
         }
 
         @media (max-width: 768px) {
+            /* ── Fix horizontal overflow / empty space when swiping left ──
+               MUST be inside media query — global overflow-x:hidden breaks
+               position:sticky on the desktop nav. ── */
+            html, body { overflow-x: hidden; }
+
             /* ── Tighter container padding on phones ── */
             .container { padding: 0 16px; }
 
