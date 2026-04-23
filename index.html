@@ -2965,9 +2965,11 @@
                 font-size: 0.78rem;
             }
 
-            /* ── Charts: single column ── */
-            .charts-grid { grid-template-columns: 1fr; gap: 14px; }
+            /* ── Charts: single column (! needed to beat inline grid-template-columns) ── */
+            .charts-grid { grid-template-columns: 1fr !important; gap: 14px; }
             .chart-card  { padding: 14px; }
+            /* ML detection images: 1-col so images aren't clipped */
+            .ml-images-grid { grid-template-columns: 1fr !important; gap: 12px; }
 
             /* ── Methodology / Proteus tabs ── */
             .proteus-tabs { gap: 6px; flex-wrap: wrap; }
