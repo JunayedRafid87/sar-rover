@@ -1154,6 +1154,55 @@
             border-radius: 50%;
         }
 
+        .viewer-select-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .viewer-select {
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            padding: 8px 32px 8px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            font-family: inherit;
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+            transition: all 0.2s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f9fafb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        }
+
+        .viewer-select:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .viewer-select option {
+            background: #1a1f2e;
+            color: #f9fafb;
+        }
+
+        [data-theme="light"] .viewer-select {
+            background: rgba(255, 255, 255, 0.8);
+            color: #111827;
+            border-color: rgba(0, 0, 0, 0.1);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23111827'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        }
+
+        [data-theme="light"] .viewer-select option {
+            background: #ffffff;
+            color: #111827;
+        }
+
         .viewer-controls {
             position: absolute;
             bottom: 20px;
@@ -3247,6 +3296,12 @@
                     </div>
                     <div class="loader-text">Loading Framework...</div>
                 </div>
+                <div class="viewer-select-container" id="viewer-select-container">
+                    <select id="mapSelect" class="viewer-select" onchange="changeMap(this.value)">
+                        <option value="sim">Simulation Map (LiDAR)</option>
+                        <option value="home">Junayed's Home (Real UGV)</option>
+                    </select>
+                </div>
                 <div class="viewer-overlay">
                     <div class="viewer-tag" id="viewer-label">
                         <span class="dot" style="background:#22c55e"></span>
@@ -4727,34 +4782,55 @@
         // PLY cache — avoids re-fetch and re-parse when revisiting an approach
         const plyCache = {};
         const plyTextCache = {};
+        const plyPointsCount = {};
         const isMobile = window.innerWidth < 768 || navigator.maxTouchPoints > 1;
 
-        function parsePLYText(approach, text) {
+        function updatePointCountUI(approach, file) {
+            const count = plyPointsCount[file];
+            if (count) {
+                const countStr = count.toLocaleString() + ' points';
+                const countEl = document.getElementById('point-count');
+                const infoPointsEl = document.getElementById('info-points');
+                if (countEl) countEl.textContent = countStr;
+                if (infoPointsEl) infoPointsEl.textContent = count.toLocaleString();
+            }
+        }
+
+        function parsePLYText(approach, text, file) {
             const info = APPROACHES[approach];
-            const lines = text.split('\n');
+            const allLines = text.split('\n');
             let headerEnd = 0;
             let vertexCount = 0;
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('element vertex')) {
-                    vertexCount = parseInt(lines[i].split(' ')[2]);
+            for (let i = 0; i < allLines.length; i++) {
+                if (allLines[i].startsWith('element vertex')) {
+                    vertexCount = parseInt(allLines[i].split(' ')[2]);
                 }
-                if (lines[i].trim() === 'end_header') {
+                if (allLines[i].trim() === 'end_header') {
                     headerEnd = i + 1; break;
                 }
             }
 
-            const rawX = new Float32Array(vertexCount);
-            const rawY = new Float32Array(vertexCount);
-            const rawZ = new Float32Array(vertexCount);
-            const rawR = new Uint8Array(vertexCount);
-            const rawG = new Uint8Array(vertexCount);
-            const rawB = new Uint8Array(vertexCount);
+            // Filter out blank lines from the data section to prevent crashes
+            const dataLines = [];
+            for (let i = headerEnd; i < allLines.length; i++) {
+                const trimmed = allLines[i].trim();
+                if (trimmed.length > 0) dataLines.push(trimmed);
+            }
+            const actualCount = Math.min(vertexCount, dataLines.length);
+            plyPointsCount[file] = actualCount;
+
+            const rawX = new Float32Array(actualCount);
+            const rawY = new Float32Array(actualCount);
+            const rawZ = new Float32Array(actualCount);
+            const rawR = new Uint8Array(actualCount);
+            const rawG = new Uint8Array(actualCount);
+            const rawB = new Uint8Array(actualCount);
             let hasColor = false;
             let cx = 0, cy = 0, cz = 0, count = 0;
 
-            for (let i = 0; i < vertexCount; i++) {
-                const parts = lines[headerEnd + i]?.trim().split(/\s+/);
-                if (!parts || parts.length < 3) continue;
+            for (let i = 0; i < actualCount; i++) {
+                const parts = dataLines[i].split(/\s+/);
+                if (parts.length < 3) continue;
                 const x = parseFloat(parts[0]), y = parseFloat(parts[1]), z = parseFloat(parts[2]);
                 rawX[i] = x; rawY[i] = y; rawZ[i] = z;
                 cx += x; cy += y; cz += z; count++;
@@ -4763,21 +4839,56 @@
                     if (rawR[i] || rawG[i] || rawB[i]) hasColor = true;
                 }
             }
+            if (count === 0) count = 1;
             cx /= count; cy /= count; cz /= count;
 
-            const positions = new Float32Array(vertexCount * 3);
-            const colors = new Float32Array(vertexCount * 3);
-            const fallback = new THREE.Color(info.color);
+            const positions = new Float32Array(actualCount * 3);
+            const colors = new Float32Array(actualCount * 3);
 
-            for (let i = 0; i < vertexCount; i++) {
+            // Determine height bounds (Y in Three.js) for LiDAR color scheme
+            let minY = Infinity, maxY = -Infinity;
+            for (let i = 0; i < actualCount; i++) {
                 positions[i * 3] = rawX[i] - cx;
                 positions[i * 3 + 1] = rawZ[i] - cz;
                 positions[i * 3 + 2] = -(rawY[i] - cy);
 
-                if (rawR[i] || rawG[i] || rawB[i]) {
-                    colors[i * 3] = rawR[i] / 255; colors[i * 3 + 1] = rawG[i] / 255; colors[i * 3 + 2] = rawB[i] / 255;
+                const yVal = positions[i * 3 + 1];
+                if (yVal < minY) minY = yVal;
+                if (yVal > maxY) maxY = yVal;
+            }
+            const heightRange = maxY - minY || 1;
+
+            const colorGreen = new THREE.Color('#4af0b4');
+            const colorYellow = new THREE.Color('#eab308');
+            const colorRed = new THREE.Color('#ef4444');
+            const tempColor = new THREE.Color();
+
+            for (let i = 0; i < actualCount; i++) {
+                if (approach === 1) {
+                    // Height gradient coloring for Approach 1 (LiDAR maps)
+                    const yVal = positions[i * 3 + 1];
+                    const t = (yVal - minY) / heightRange;
+
+                    if (t < 0.5) {
+                        tempColor.lerpColors(colorGreen, colorYellow, t * 2);
+                    } else {
+                        tempColor.lerpColors(colorYellow, colorRed, (t - 0.5) * 2);
+                    }
+                    colors[i * 3] = tempColor.r;
+                    colors[i * 3 + 1] = tempColor.g;
+                    colors[i * 3 + 2] = tempColor.b;
                 } else {
-                    colors[i * 3] = fallback.r; colors[i * 3 + 1] = fallback.g; colors[i * 3 + 2] = fallback.b;
+                    // Use embedded raw colors if available, otherwise use approach color
+                    if (rawR[i] || rawG[i] || rawB[i]) {
+                        colors[i * 3] = rawR[i] / 255;
+                        colors[i * 3 + 1] = rawG[i] / 255;
+                        colors[i * 3 + 2] = rawB[i] / 255;
+                    } else {
+                        const fallback = new THREE.Color(info.color);
+                        colors[i * 3] = fallback.r;
+                        colors[i * 3 + 1] = fallback.g;
+                        colors[i * 3 + 2] = fallback.b;
+                    }
                 }
             }
 
@@ -4790,7 +4901,7 @@
             });
 
             const cloud = new THREE.Points(geometry, material);
-            plyCache[approach] = cloud;
+            plyCache[file] = cloud;
             return cloud;
         }
 
@@ -4798,54 +4909,94 @@
         function prefetchAllPLY() {
             const idleCb = window.requestIdleCallback || (fn => setTimeout(fn, 200));
             [1, 2, 3].forEach((n, idx) => {
-                // Stagger fetches to avoid network contention
+                const file = APPROACHES[n].file;
                 setTimeout(() => {
-                    if (plyCache[n]) return; // already loaded by user click
-                    fetch(APPROACHES[n].file)
+                    if (plyCache[file]) return;
+                    fetch(file)
                         .then(r => r.text())
                         .then(text => {
-                            plyTextCache[n] = text;
-                            // Desktop: also pre-parse during idle time
-                            if (!isMobile && !plyCache[n]) {
-                                idleCb(() => { if (!plyCache[n]) parsePLYText(n, text); });
+                            plyTextCache[file] = text;
+                            if (!isMobile && !plyCache[file]) {
+                                idleCb(() => { if (!plyCache[file]) parsePLYText(n, text, file); });
                             }
                         })
-                        .catch(() => { }); // silently fail
-                }, idx * 500); // stagger by 500ms each
+                        .catch(() => { });
+                }, idx * 500);
             });
         }
 
         function loadPLY(approach) {
             const loader = document.getElementById('viewer-loader');
+            let file = APPROACHES[approach].file;
+            if (approach === 1) {
+                const mapSelect = document.getElementById('mapSelect');
+                if (mapSelect && mapSelect.value === 'home') {
+                    file = 'junayeds_home.ply';
+                }
+            }
 
             // If fully parsed and cached, swap instantly
-            if (plyCache[approach]) {
+            if (plyCache[file]) {
                 if (currentCloud) scene.remove(currentCloud);
-                currentCloud = plyCache[approach];
+                currentCloud = plyCache[file];
                 scene.add(currentCloud);
                 if (loader) loader.classList.add('hidden');
+                updatePointCountUI(approach, file);
                 return;
             }
 
             if (loader) loader.classList.remove('hidden');
 
-            // Use prefetched text if available, otherwise fetch
-            const textPromise = plyTextCache[approach]
-                ? Promise.resolve(plyTextCache[approach])
-                : fetch(APPROACHES[approach].file).then(r => r.text());
+            const textPromise = plyTextCache[file]
+                ? Promise.resolve(plyTextCache[file])
+                : fetch(file).then(r => r.text());
 
             textPromise.then(text => {
+                plyTextCache[file] = text;
                 if (currentCloud) scene.remove(currentCloud);
-                currentCloud = parsePLYText(approach, text);
+                currentCloud = parsePLYText(approach, text, file);
                 scene.add(currentCloud);
                 if (loader) loader.classList.add('hidden');
+                updatePointCountUI(approach, file);
             });
         }
 
+        function changeMap(mapKey) {
+            if (mapKey === 'home') {
+                document.getElementById('viewer-title').textContent = "Junayed's Home — LiDAR Only";
+                document.getElementById('info-sensor').textContent = "RPLiDAR C1 (16-Layer)";
+                document.getElementById('info-power').textContent = "38.2W";
+                document.getElementById('info-battery').textContent = "42 min runtime";
+                document.getElementById('info-data').textContent = "5.4 MB/s";
+                document.getElementById('info-color').textContent = "No color data";
+                document.getElementById('info-slam').textContent = "ICP SLAM Toolbox";
+                document.getElementById('info-slam-detail').textContent = "Physical UGV validation";
+            } else {
+                const info = APPROACHES[1];
+                document.getElementById('viewer-title').textContent = info.title;
+                document.getElementById('info-sensor').textContent = info.sensor;
+                document.getElementById('info-power').textContent = info.power;
+                document.getElementById('info-battery').textContent = info.battery;
+                document.getElementById('info-data').textContent = info.data;
+                document.getElementById('info-color').textContent = info.dataColor;
+                document.getElementById('info-slam').textContent = info.slam;
+                document.getElementById('info-slam-detail').textContent = info.slamDetail;
+            }
+            loadPLY(1);
+        }
+        window.changeMap = changeMap;
+
         function switchApproach(n) {
-            // Globally update all approach tabs across the showcase
             document.querySelectorAll('.approach-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll(`.approach-tab[data-approach="${n}"]`).forEach(t => t.classList.add('active'));
+
+            // Show/hide map switcher container dynamically
+            const selectContainer = document.getElementById('viewer-select-container');
+            if (n === 1 && currentRenderMode === '3d') {
+                if (selectContainer) selectContainer.style.display = 'block';
+            } else {
+                if (selectContainer) selectContainer.style.display = 'none';
+            }
 
             const info = APPROACHES[n];
             document.getElementById('viewer-title').textContent = info.title;
@@ -4862,16 +5013,21 @@
             document.getElementById('info-slam-detail').textContent = info.slamDetail;
 
             currentApproach = n;
-            loadPLY(n);
+            
+            // If returning to Approach 1, make sure we reflect the active dropdown option
+            if (n === 1) {
+                const mapSelect = document.getElementById('mapSelect');
+                if (mapSelect) changeMap(mapSelect.value);
+            } else {
+                loadPLY(n);
+            }
             resetCamera(n);
 
-            // Update CSS variable so hover glows use the right approach color
             var rgbMap = { 1: '34,197,94', 2: '249,115,22', 3: '168,85,247' };
             document.documentElement.style.setProperty('--approach-rgb', rgbMap[n] || '6,182,212');
 
             if (typeof updateChartsHighlight === 'function') updateChartsHighlight(n);
 
-            // Swap OMNeT++ Network Simulation Video & Image
             const netImg = document.getElementById('net-sim-img');
             if (netImg) {
                 netImg.src = 'omnet_ap' + n + '.png';
@@ -4886,7 +5042,6 @@
                 netVid.play().catch(function () { });
             }
 
-            // Update live mapping video if active
             if (typeof currentRenderMode !== 'undefined' && currentRenderMode === 'video') {
                 const videoFrame = document.getElementById('viewer-video');
                 if (videoFrame) videoFrame.src = ytLinks[n];
@@ -4910,6 +5065,7 @@
             const controls = document.querySelector('.viewer-controls');
             const hint = document.querySelector('.viewer-hint');
             const videoFrame = document.getElementById('viewer-video');
+            const selectContainer = document.getElementById('viewer-select-container');
 
             [btn3d, btnVideo].forEach(b => {
                 b.style.background = 'transparent';
@@ -4923,8 +5079,9 @@
                 if (overlay) overlay.style.display = 'flex';
                 if (controls) controls.style.display = 'flex';
                 if (hint) hint.style.display = 'block';
+                if (currentApproach === 1 && selectContainer) selectContainer.style.display = 'block';
                 videoFrame.style.display = 'none';
-                videoFrame.src = ''; // stop video
+                videoFrame.src = '';
             } else {
                 btnVideo.style.background = 'rgba(var(--approach-rgb, 6, 182, 212), 0.2)';
                 btnVideo.style.color = 'var(--text-color)';
@@ -4932,6 +5089,7 @@
                 if (overlay) overlay.style.display = 'none';
                 if (controls) controls.style.display = 'none';
                 if (hint) hint.style.display = 'none';
+                if (selectContainer) selectContainer.style.display = 'none';
                 videoFrame.style.display = 'block';
                 videoFrame.src = ytLinks[currentApproach];
             }
